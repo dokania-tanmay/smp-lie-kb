@@ -1,0 +1,616 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
+
+%------------------------------------------------------------------
+% Theorem-like environments
+%------------------------------------------------------------------
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{notation}[definition]{Notation}
+\newtheorem{remark}[definition]{Remark}
+
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{corollary}[definition]{Corollary}
+
+%------------------------------------------------------------------
+% Macros
+%------------------------------------------------------------------
+\newcommand{\g}{\mathfrak{g}}
+\newcommand{\Sec}{K}
+\newcommand{\Sect}{\widetilde{K}}
+\newcommand{\Scal}{\operatorname{Scal}}
+\newcommand{\ad}{\operatorname{ad}}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\dpi}{d\pi}
+\newcommand{\hor}[1]{#1^{h}}
+\newcommand{\ver}[1]{#1^{v}}
+\newcommand{\cmp}[1]{#1^{c}}
+\newcommand{\inner}[2]{\langle #1, #2\rangle}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\TG}{TG}
+\newcommand{\TTG}{TTG}
+\newcommand{\Liou}{\Delta}
+\newcommand{\gS}{g^{S}}
+\newcommand{\nablat}{\widetilde{\nabla}}
+\newcommand{\Rt}{\widetilde{R}}
+\newcommand{\dd}[1]{\partial_{#1}}
+\newcommand{\iso}{\;\xrightarrow{\;\sim\;}\;}
+\newcommand{\so}{\mathfrak{so}}
+\newcommand{\se}{\mathfrak{se}}
+\newcommand{\grav}{\mathsf{g}}
+\newcommand{\hatm}[1]{\widehat{#1}}
+\newcommand{\Inertia}{\mathbb{I}}
+\DeclareMathOperator{\GL}{GL}
+\DeclareMathOperator{\SO}{SO}
+\DeclareMathOperator{\SE}{SE}
+
+\title{Second--Order Systems on Lie Groups and the Curvature of $\TG$}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+%==================================================================
+\section{Introduction}\label{sec:intro}
+%==================================================================
+
+This note treats two objects attached to a Lie group $G$ carrying a Riemannian metric
+$g$: first, \emph{second--order dynamical systems} on $G$, viewed geometrically as
+distinguished vector fields on the tangent bundle $\TG$; and second, the curvature of the
+natural \emph{Sasaki} metric on $\TG$. Both live on the \emph{double tangent bundle}
+$\TTG$, and essentially all of the notational friction is concentrated there. This
+introduction develops that notation from scratch and slowly; a reader already fluent in
+the double tangent bundle can skip directly to Section~\ref{sec:notation}.
+
+Throughout, the symbol ``$\iso$'' means \emph{is a linear isomorphism onto}.
+
+\subsection{A running coordinate dictionary}\label{ss:coords}
+
+Choose local coordinates $(x^{1},\dots,x^{n})$ on an open set of $G$. They induce
+coordinates $(x^{i},y^{i})$ on $\TG$, where the point $(x,y)$ \emph{is} the tangent vector
+\[
+  v \;=\; y^{i}\,\dd{x^{i}}\Big|_{x}\;\in\;T_{x}G .
+\]
+So the $x$'s locate the foot point and the $y$'s record the components of the vector
+sitting there. A tangent vector to the manifold $\TG$ at $(x,y)$ is then a combination
+$a^{i}\dd{x^{i}}+b^{i}\dd{y^{i}}$. The following table collects every object used below;
+each line is explained in the subsections that follow. Here $\Gamma^{k}_{ij}$ are the
+Christoffel symbols of the Levi--Civita connection $\nabla$ of $g$.
+\[
+\renewcommand{\arraystretch}{1.35}
+\begin{array}{ll}
+\text{projection } \dpi \ (T\pi): & \dpi\bigl(a^{i}\dd{x^{i}}+b^{i}\dd{y^{i}}\bigr)=a^{i}\dd{x^{i}}\\
+\text{connector } K: & K\bigl(a^{i}\dd{x^{i}}+b^{i}\dd{y^{i}}\bigr)=\bigl(b^{k}+\Gamma^{k}_{ij}\,y^{i}a^{j}\bigr)\dd{x^{k}}\\
+\text{horizontal lift } \hor{X}\ \text{of }\dd{x^{i}}: & \dd{x^{i}}-\Gamma^{k}_{ij}\,y^{j}\dd{y^{k}}\\
+\text{vertical lift } \ver{X}\ \text{of }\dd{x^{i}}: & \dd{y^{i}}\\
+\text{Liouville field } \Liou: & y^{i}\dd{y^{i}}\\
+\text{geodesic spray } S: & y^{i}\dd{x^{i}}-\Gamma^{k}_{ij}\,y^{i}y^{j}\dd{y^{k}}
+\end{array}
+\]
+
+\subsection{Why $\TTG$, and its two projections}\label{ss:twoproj}
+
+A vector field on $G$ is a map assigning to each point a tangent vector, i.e.\ a section of
+$\pi:\TG\to G$. A \emph{second--order} system prescribes accelerations, not just
+velocities; geometrically it is a vector field on the manifold $\TG$ itself, i.e.\ a
+section of $\pi_{\TG}:\TTG\to \TG$. So we are forced onto the double tangent bundle
+$\TTG=T(\TG)$.
+
+The key mental picture: a tangent vector $\xi\in T_{v}(\TG)$ is the velocity at $s=0$ of a
+\emph{moving vector}
+\[
+  s\longmapsto v(s)\in T_{\gamma(s)}G,
+  \qquad \gamma(0)=g,\quad v(0)=v ,
+\]
+that is, a vector $v(s)$ whose foot point $\gamma(s)$ is itself moving. Such a motion
+carries two independent pieces of first--order information, and correspondingly $\TTG$ has
+two natural projections down to $\TG$:
+\begin{itemize}[leftmargin=2em]
+  \item $\pi_{\TG}(\xi)=v$: the point of $\TG$ we are sitting at (the foot point of $\xi$
+        as a tangent vector). This is automatic.
+  \item $T\pi(\xi)=\dpi(\xi)=\dot\gamma(0)\in T_{g}G$: how fast the \emph{foot point} of
+        the moving vector is moving.
+\end{itemize}
+These two need \emph{not} coincide, and the whole notion of a second--order system in
+Section~\ref{sec:notation} is exactly the demand that they do.
+
+\subsection{The connector $K$ and the horizontal/vertical splitting}\label{ss:split}
+
+The differential $\dpi$ alone cannot split $T_{v}(\TG)$: its kernel, the \emph{vertical}
+subspace $V_{v}$ (motions with a stationary foot point, $\dot\gamma=0$, so the vector
+merely slides within the fixed fibre $T_{g}G$), is canonical, but there is no canonical
+complement without extra data. The Levi--Civita connection supplies that data through the
+\emph{connector} (or connection map)
+\[
+  K(\xi)\;=\;\nabla_{\dot\gamma}v\big|_{s=0}\;\in\;T_{g}G,
+\]
+the covariant derivative of the moving vector, packaged as an honest vector in $T_{g}G$.
+Now
+\[
+  T_{v}(\TG)\;=\;H_{v}\oplus V_{v},
+  \qquad
+  H_{v}=\ker K \ (\text{covariantly constant / parallel directions}),\quad
+  V_{v}=\ker \dpi ,
+\]
+and the pair of readings gives the isomorphism
+\[
+  \xi\;\longmapsto\;(\dpi\,\xi,\;K\xi)
+  \ :\ T_{v}(\TG)\iso T_{g}G\oplus T_{g}G .
+\]
+In words: \emph{horizontal} $=$ ``the foot moves and the vector is parallel--transported
+along'' ($K=0$); \emph{vertical} $=$ ``the foot stays put and the vector slides''
+($\dpi=0$). Restricting the two maps gives $\dpi|_{H_{v}}:H_{v}\iso T_{g}G$ and
+$K|_{V_{v}}:V_{v}\iso T_{g}G$.
+
+\subsection{Horizontal and vertical lifts}\label{ss:lifts}
+
+Inverting the isomorphism produces the two \emph{lifts} of a base vector $X\in T_{g}G$:
+\[
+  \hor{X}\in H_{v}:\ \text{the unique horizontal vector with }\dpi(\hor{X})=X
+  \quad(\text{foot moves along }X,\ v\ \text{parallel--transported}),
+\]
+\[
+  \ver{X}\in V_{v}:\ \ver{X}=\frac{d}{ds}\Big|_{0}(v+sX)
+  \quad(\text{foot fixed, }v\ \text{slides in direction }X,\ \text{so }K(\ver{X})=X).
+\]
+The superscripts $h$ and $v$ always denote these two lifts; their coordinate forms are in
+the table of \S\ref{ss:coords}. For a vector \emph{field} $X$ on $G$ one lifts pointwise
+to obtain vector fields $\hor{X},\ver{X}$ on $\TG$.
+
+\subsection{The Liouville field $\Liou$ and the vertical endomorphism $J$}\label{ss:liouville}
+
+Two canonical objects on $\TG$ are built from lifts alone.
+
+The \emph{Liouville} (or Euler, or dilation) vector field is the radial ``position'' field
+on the fibres,
+\[
+  \Liou_{v}\;=\;\ver{v}
+  \qquad(\text{the vertical lift of }v\ \text{at the point }v\ \text{itself}),
+  \qquad \Liou=y^{i}\dd{y^{i}} .
+\]
+Its flow is fibrewise scaling $v\mapsto e^{s}v$; it is the infinitesimal generator of
+dilations of the fibres, and it is the tool that measures fibre--homogeneity in
+\S\ref{ss:sprays}.
+
+The \emph{vertical endomorphism} (or tangent structure) $J$ takes the horizontal shadow of
+a vector and re--injects it vertically,
+\[
+  J\xi\;=\;\ver{(\dpi\,\xi)},
+  \qquad\text{so}\qquad
+  J\,\hor{X}=\ver{X},\quad J\,\ver{X}=0,\quad J^{2}=0 .
+\]
+
+\subsection{Second--order systems: the state is the velocity}\label{ss:sode}
+
+Let $\Gamma$ be a vector field on $\TG$, i.e.\ a section $\Gamma:\TG\to\TTG$. Its value
+$\Gamma(v)\in T_{v}(\TG)$ always has foot point $v$ (that is $\pi_{\TG}(\Gamma(v))=v$,
+automatically), and it has a horizontal shadow $\dpi(\Gamma(v))\in T_{g}G$. Saying
+\emph{``the two projections agree''} means precisely
+\[
+  \boxed{\;\dpi\bigl(\Gamma(v)\bigr)=v\;}
+  \qquad\Longleftrightarrow\qquad
+  \dpi\circ\Gamma=\id_{\TG}
+  \qquad\Longleftrightarrow\qquad
+  J\Gamma=\Liou .
+\]
+(The last equivalence is immediate: $J\Gamma=\ver{(\dpi\,\Gamma)}$ while $\Liou=\ver{v}$,
+so $J\Gamma=\Liou$ says $\dpi\,\Gamma=v$.)
+
+Why this is called \emph{second order}: let $s\mapsto V(s)\in\TG$ be an integral curve,
+$\dot V=\Gamma(V)$, and set $\gamma=\pi\circ V$. Then
+\[
+  \dot\gamma \;=\; \dpi(\dot V)\;=\;\dpi\bigl(\Gamma(V)\bigr)\;=\;V ,
+\]
+so $V=\dot\gamma$: the curve in $\TG$ \emph{is} the velocity of its own base projection.
+The state variable is the velocity, and $\dot V=\Gamma(V)$ becomes a genuine second--order
+equation $\ddot\gamma=F(\gamma,\dot\gamma)$. In the coordinates of \S\ref{ss:coords} a
+semispray reads $\Gamma=y^{i}\dd{x^{i}}+F^{i}(x,y)\dd{y^{i}}$ (the $\dd{x^{i}}$--coefficients
+are forced to be exactly $y^{i}$), and its integral curves satisfy $\dot x^{i}=y^{i}$,
+$\dot y^{i}=F^{i}$, i.e.\ $\ddot x^{i}=F^{i}(x,\dot x)$.
+
+\subsection{Sprays and fibre--homogeneity}\label{ss:sprays}
+
+A semispray is a \emph{spray} when the force $F$ is \emph{quadratic} in the velocity
+(homogeneous of degree $2$ in the fibre variable $y$). Invariantly this is the bracket
+condition
+\[
+  [\Liou,S]=S ,
+\]
+which uses the Liouville field of \S\ref{ss:liouville} to say ``$S$ scales with weight $2$
+under fibre dilations $v\mapsto e^{s}v$.'' The model is the \emph{geodesic spray}
+\[
+  S=y^{i}\dd{x^{i}}-\Gamma^{k}_{ij}\,y^{i}y^{j}\dd{y^{k}},
+\]
+whose quadratic term is precisely the geodesic equation's
+$\Gamma^{k}_{ij}\dot\gamma^{i}\dot\gamma^{j}$; homogeneity is exactly what makes geodesics
+closed under affine reparametrization. This is the content of
+Definition~\ref{def:spray} below.
+
+\subsection{The Sasaki metric}\label{ss:sasaki-intro}
+
+Once $T_{v}(\TG)\iso T_{g}G\oplus T_{g}G$ via $\xi\mapsto(\dpi\,\xi,K\xi)$, the most
+obvious metric on $\TG$ applies the base metric $g$ to each of the two factors:
+\[
+  \gS(\xi,\eta)\;=\;g\bigl(\dpi\,\xi,\dpi\,\eta\bigr)+g\bigl(K\xi,K\eta\bigr).
+\]
+This makes horizontal and vertical subspaces orthogonal, each isometric to $(T_{g}G,g)$.
+It is the ``simple'' metric of the title; Section~\ref{sec:curvature} records how curved it
+turns out to be. (Some authors abbreviate the two blocks as $\pi^{*}g$ for the horizontal
+piece $g(\dpi\,\cdot,\dpi\,\cdot)$ and $\pi^{\star}g$ for the vertical piece
+$g(K\cdot,K\cdot)$; we avoid that shorthand here.)
+
+%==================================================================
+\section{Notation and definitions}\label{sec:notation}
+%==================================================================
+
+\begin{notation}[Base data]\label{not:base}
+$G$ is an $n$--dimensional Lie group with Lie algebra $\g=T_eG$ and Riemannian metric $g$;
+when convenient $g$ is left--invariant, determined by an inner product
+$\inner{\cdot}{\cdot}$ on $\g$. Write $\nabla$ for the Levi--Civita connection and $R$ for
+its curvature $(3,1)$--tensor,
+\begin{equation}\label{eq:Rconv}
+  R(X,Y)Z \;=\; \nabla_X\nabla_Y Z-\nabla_Y\nabla_X Z-\nabla_{[X,Y]}Z ,
+\end{equation}
+so that for $g$--orthonormal $X,Y\in T_pG$ the base sectional curvature is
+\begin{equation}\label{eq:Kbase}
+  \Sec(X,Y) \;=\; g\bigl(R(X,Y)Y,\,X\bigr).
+\end{equation}
+\end{notation}
+
+\begin{notation}[Tangent and double tangent bundle]\label{not:double}
+$\pi:\TG\to G$ is the bundle projection. A second--order system is a vector field on $\TG$,
+i.e.\ a section of $\pi_{\TG}:\TTG\to\TG$. The bundle $\TTG$ carries the two projections
+onto $\TG$
+\begin{equation}\label{eq:twoproj}
+  \pi_{\TG}:\TTG\longrightarrow \TG
+  \qquad\text{and}\qquad
+  T\pi=\dpi:\TTG\longrightarrow \TG ,
+\end{equation}
+which on $\xi\in T_v(\TG)$ return the foot point $v$ and the shadow $\dpi(\xi)$
+respectively (\S\ref{ss:twoproj}).
+\end{notation}
+
+\begin{notation}[Connector, splitting, lifts]\label{not:split}
+The connector $K:\TTG\to\TG$ of \S\ref{ss:split}, $K(\xi)=\nabla_{\dot\gamma}v|_{0}$,
+yields the orthogonal splitting
+\begin{equation}\label{eq:split}
+  T_v(\TG) \;=\; H_v\oplus V_v,
+  \qquad
+  H_v=\ker K|_v,\quad V_v=\ker \dpi|_v,
+\end{equation}
+with $\dpi|_{H_v}:H_v\iso T_gG$ and $K|_{V_v}:V_v\iso T_gG$
+(recall ``$\iso$'' means ``is a linear isomorphism onto''). For $X\in T_gG$, the lifts
+$\hor{X}\in H_v$ and $\ver{X}\in V_v$ (\S\ref{ss:lifts}) are fixed by
+\[
+  \dpi(\hor{X})=X,\ K(\hor{X})=0;
+  \qquad
+  \dpi(\ver{X})=0,\ K(\ver{X})=X .
+\]
+\end{notation}
+
+\begin{notation}[Canonical structures on $\TG$]\label{not:canon}
+$\Liou$ is the Liouville (dilation) field, $\Liou_v=\ver{v}$, and $J$ is the vertical
+endomorphism, $J\xi=\ver{(\dpi\,\xi)}$, so $J\hor{X}=\ver{X}$, $J\ver{X}=0$
+(\S\ref{ss:liouville}).
+\end{notation}
+
+\begin{definition}[Sasaki metric]\label{def:sasaki}
+The \emph{Sasaki metric} on $\TG$ is
+\begin{equation}\label{eq:sasaki}
+  \gS(\xi,\eta)\;=\;g\bigl(\dpi\,\xi,\ \dpi\,\eta\bigr)
+                 \;+\;g\bigl(K\,\xi,\ K\,\eta\bigr),
+  \qquad \xi,\eta\in T_v(\TG),
+\end{equation}
+equivalently the unique metric making \eqref{eq:split} orthogonal with
+$\gS(\hor{X},\hor{Y})=\gS(\ver{X},\ver{Y})=g(X,Y)$ and $\gS(\hor{X},\ver{Y})=0$
+(\S\ref{ss:sasaki-intro}).
+\end{definition}
+
+\begin{definition}[Second--order vector field / semispray]\label{def:sode}
+A vector field $\Gamma$ on $\TG$ is a \emph{second--order differential equation} (SODE), or
+\emph{semispray}, if the two projections \eqref{eq:twoproj} agree on it (\S\ref{ss:sode}):
+\begin{equation}\label{eq:sode}
+  \dpi\circ\Gamma=\id_{\TG}
+  \qquad\Longleftrightarrow\qquad
+  J\,\Gamma=\Liou .
+\end{equation}
+Its integral curves are the tangent lifts $\dot\gamma$ of base curves $\gamma$ solving
+$\ddot\gamma=F(\gamma,\dot\gamma)$.
+\end{definition}
+
+\begin{definition}[Spray, geodesic spray]\label{def:spray}
+A semispray $S$ is a \emph{spray} if it is homogeneous of degree $2$ in the fibre,
+$[\Liou,S]=S$ (equivalently, $F$ is quadratic in velocity; \S\ref{ss:sprays}). The
+prototype is the \emph{geodesic spray} of $(G,g)$, whose integral curves are the velocities
+$\dot\gamma$ of geodesics of $\nabla$.
+\end{definition}
+
+%==================================================================
+\section{Reduction of the geodesic spray on a Lie group}\label{sec:reduction}
+%==================================================================
+
+Left translation trivializes $\TG\cong G\times\g$ and $\TTG\cong G\times\g\times\g\times\g$,
+and a left--invariant geodesic spray descends to $\g$.
+
+\begin{proposition}[Euler--Poincar\'e / Euler--Arnold form]\label{prop:EP}
+Let $g$ be left--invariant with reduced Lagrangian
+$\ell(\xi)=\tfrac12\inner{\mathbb{I}\xi}{\xi}$, where $\xi=T L_{g^{-1}}\dot g\in\g$ is the
+body velocity and $\mathbb{I}$ the inertia operator. Geodesics of $(G,g)$ are the
+projections of the integral curves of the geodesic spray and satisfy
+\begin{equation}\label{eq:EP}
+  \frac{d}{dt}\frac{\partial\ell}{\partial\xi}
+  =\ad^{*}_{\xi}\frac{\partial\ell}{\partial\xi}
+  \quad\Longleftrightarrow\quad
+  \mathbb{I}\dot\xi=\ad^{*}_{\xi}\,\mathbb{I}\xi,
+  \qquad
+  \dot g = T L_g\,\xi = g\,\xi .
+\end{equation}
+The reconstruction equation $\dot g=g\,\xi$ is exactly the self--consistency
+\eqref{eq:sode}: the base velocity equals the fibre variable transported to $T_gG$.
+\end{proposition}
+
+%==================================================================
+\section{Key results: curvature of $(\TG,\gS)$}\label{sec:curvature}
+%==================================================================
+
+Let $(p,u)\in\TG$ with fibre vector $u\in T_pG$, and let $X,Y\in T_pG$ be $g$--orthonormal;
+their lifts are then $\gS$--orthonormal. The curvature tensor of $\gS$ was first computed
+by Kowalski \cite{Kowalski1971}.
+
+\begin{theorem}[Sasaki sectional curvatures]\label{thm:sasaki-sec}
+With the conventions \eqref{eq:Rconv}--\eqref{eq:Kbase} and \eqref{eq:sasaki},
+\begin{align}
+  \Sect(\hor{X},\hor{Y})
+    &= \Sec(X,Y)\;-\;\tfrac34\,\bigl|R(X,Y)u\bigr|^{2},
+      \label{eq:secHH}\\[2pt]
+  \Sect(\hor{X},\ver{Y})
+    &= \tfrac14\,\bigl|R(u,Y)X\bigr|^{2},
+      \label{eq:secHV}\\[2pt]
+  \Sect(\ver{X},\ver{Y})
+    &= 0 .
+      \label{eq:secVV}
+\end{align}
+\end{theorem}
+
+\begin{remark}[Conventions]\label{rem:conv}
+The constants $-\tfrac34$ and $+\tfrac14$ are convention--independent; the index ordering
+inside $R$ in \eqref{eq:secHV} depends on the sign convention \eqref{eq:Rconv}. The
+vanishing \eqref{eq:secVV} reflects that the fibres $T_pG$ are flat and totally geodesic in
+$(\TG,\gS)$.
+\end{remark}
+
+\begin{corollary}[Rigidity]\label{cor:rigidity}
+For $(\TG,\gS)$ over $(G,g)$:
+\begin{enumerate}[label=\textup{(\roman*)}, leftmargin=2.2em]
+  \item flat $\iff$ $(G,g)$ is flat $\iff$ $R\equiv0$;
+  \item locally symmetric $\iff$ $R\equiv0$;
+  \item Einstein $\iff$ $(G,g)$ is flat;
+  \item never of constant nonzero sectional curvature.
+\end{enumerate}
+These are the classical statements of Kowalski \cite{Kowalski1971} and Musso--Tricerri
+\cite{MussoTricerri1988}; see also \cite{GudmundssonKappos2002,Albuquerque2018}.
+\end{corollary}
+
+\begin{proposition}[Scalar curvature]\label{prop:scal}
+\begin{equation}\label{eq:scal}
+  \Scal(\TG,\gS)\;=\;\Scal(G,g)\;-\;\tfrac14\,\norm{R_\xi}^{2},
+\end{equation}
+where, in a $g$--orthonormal frame $\{e_i\}$ of $T_pG$,
+$\norm{R_\xi}^{2}=\sum_{i,j,k}g(R(e_i,e_j)u,e_k)^{2}$ at $u$. Thus $\Scal$ decreases
+quadratically along the fibres.
+\end{proposition}
+
+%------------------------------------------------------------------
+\subsection{Variant: the left--invariant lift metric on the tangent Lie group}
+\label{sec:variant}
+%------------------------------------------------------------------
+
+A second natural metric on $\TG$ is adapted to the group structure rather than to $\nabla$:
+using complete and vertical lifts $\cmp{X},\ver{X}$ of left--invariant fields,
+\begin{equation}\label{eq:liftmetric}
+  \widetilde{g}(\cmp{X},\cmp{Y})=\widetilde{g}(\ver{X},\ver{Y})=g(X,Y),
+  \qquad
+  \widetilde{g}(\cmp{X},\ver{Y})=0 ,
+  \qquad X,Y\in\g .
+\end{equation}
+This makes $\TG$ itself a Lie group (the \emph{tangent Lie group}); its Levi--Civita
+connection carries extra $\ad^{*}$ terms absent in the Sasaki case,
+\begin{equation}\label{eq:liftconn}
+  \nablat_{\cmp{U}}\cmp{V}=(\nabla_U V)^{c},\quad
+  \nablat_{\ver{U}}\ver{V}=\bigl(\nabla_U V-\tfrac12[U,V]\bigr)^{c},\quad
+  \nablat_{\cmp{U}}\ver{V}=\bigl(\nabla_U V+\tfrac12\ad^{*}_V U\bigr)^{v}.
+\end{equation}
+Since the complete lift $\cmp{X}$ differs from the horizontal lift $\hor{X}$ in general, the
+resulting sectional curvatures differ from Theorem~\ref{thm:sasaki-sec}; explicit formulas
+for base groups with low--dimensional commutator subgroup appear in
+\cite{HatamiSalimi2026}. Thus ``the simple metric on $\TG$'' resolves to \eqref{eq:sasaki}
+if one means the connection--based split, and to \eqref{eq:liftmetric} if one wants $\TG$ to
+be a group.
+
+%==================================================================
+\section{A worked example: a mechanical system on a matrix Lie group}
+\label{sec:example}
+%==================================================================
+
+We now instantiate the whole framework on a concrete rigid--body system. The point to keep
+in sight: a potential and external forces turn the geodesic spray
+(Definition~\ref{def:spray}) into a \emph{forced} semispray
+(Definition~\ref{def:sode})---they perturb only the \emph{vertical} (acceleration)
+direction, leaving the reconstruction $\dot A=A\Omega$ (the self--consistency
+$\dpi\circ\Gamma=\id$) intact, so the system stays a genuine second--order ODE on the group.
+
+\subsection{General setup: Lagrangian, forced SODE, Euler--Poincar\'e}
+\label{ss:ex-general}
+
+Let $G\subset\GL(n,\mathbb{R})$ be a matrix Lie group (the configuration space), $\g$ its
+Lie algebra, and fix a positive--definite inertia operator $\Inertia:\g\to\g^{*}$ (the mass
+matrix), which defines the left--invariant kinetic metric. A motion is a curve $A(t)\in G$
+with body velocity $\Omega=A^{-1}\dot A\in\g$. Under a potential $U:G\to\mathbb{R}$ and an
+external body force/torque $f(t)\in\g^{*}$ (imposed \`a la Lagrange--d'Alembert), the
+dynamics come from the Lagrangian
+\begin{equation}\label{eq:ex-lagrangian}
+  L:\TG\to\mathbb{R},\qquad
+  L(A,\dot A)=\tfrac12\inner{\Inertia\Omega}{\Omega}-U(A),
+  \qquad \Omega=A^{-1}\dot A ,
+\end{equation}
+i.e.\ kinetic minus potential energy. Hamilton's principle with forcing,
+$\delta\!\int L\,dt+\int\inner{f}{A^{-1}\delta A}\,dt=0$, yields the \emph{forced
+Euler--Poincar\'e equations}
+\begin{equation}\label{eq:ex-EP}
+  \boxed{\;\Inertia\dot\Omega=\ad^{*}_{\Omega}(\Inertia\Omega)-DU(A)+f,
+  \qquad \dot A=A\,\Omega\;}
+\end{equation}
+where $DU(A)\in\g^{*}$ is the left--trivialized (body--frame) differential of the potential,
+\begin{equation}\label{eq:ex-DU}
+  \inner{DU(A)}{\eta}=\left.\frac{d}{d\varepsilon}\right|_{0}U\!\bigl(A\exp(\varepsilon\eta)\bigr),
+  \qquad \eta\in\g .
+\end{equation}
+The first equation is the dynamics on $\g^{*}$; the second is the reconstruction, exactly
+the semispray self--consistency of \S\ref{ss:sode} on the group. Setting $U=0$, $f=0$
+recovers the unforced Euler--Arnold form of Proposition~\ref{prop:EP}, i.e.\ the bare
+geodesic spray.
+
+\subsection{Hamiltonian form}
+\label{ss:ex-hamiltonian}
+
+The body--frame Legendre transform sets $\mu=\partial L/\partial\Omega=\Inertia\Omega\in\g^{*}$
+(body momentum), giving the Hamiltonian on $T^{*}G$
+\begin{equation}\label{eq:ex-hamiltonian}
+  H(A,\mu)=\inner{\mu}{\Omega}-L=\tfrac12\inner{\mu}{\Inertia^{-1}\mu}+U(A),
+\end{equation}
+and the left--trivialized Hamilton equations (with forcing)
+\begin{equation}\label{eq:ex-ham-eqs}
+  \dot\mu=\ad^{*}_{\Inertia^{-1}\mu}\,\mu-DU(A)+f,
+  \qquad \dot A=A\,\Inertia^{-1}\mu .
+\end{equation}
+When $U$ is assembled from an \emph{advected parameter} (next subsection), the pair
+$(\mu,\text{parameter})$ obeys \emph{Lie--Poisson} equations $\dot F=\{F,H\}_{-}$ on the dual
+of a semidirect--product Lie algebra.
+
+\subsection{The heavy top on $\SO(3)$}
+\label{ss:heavytop}
+
+Take $G=\SO(3)$, $\g=\so(3)\cong(\mathbb{R}^{3},\times)$ via the hat map
+$\hatm{\Omega}\xi=\Omega\times\xi$. A rigid body is pinned at a fixed pivot $O$ under uniform
+gravity. Let $R\in\SO(3)$ be the body--to--space rotation, $\Omega$ the body angular
+velocity ($R^{-1}\dot R=\hatm{\Omega}$), $\Inertia=\operatorname{diag}(I_{1},I_{2},I_{3})$ the
+inertia tensor, $\chi\in\mathbb{R}^{3}$ the body vector from $O$ to the center of mass, $M$
+the mass, $\grav$ the gravitational acceleration, and $e_{3}$ the spatial vertical.
+Introduce the \emph{advected parameter} (the spatial vertical expressed in the body frame)
+\begin{equation}\label{eq:advected}
+  \Gamma=R^{-1}e_{3},
+  \qquad\text{so}\qquad
+  \dot\Gamma=\Gamma\times\Omega,\quad \norm{\Gamma}=1 .
+\end{equation}
+The potential is the height of the center of mass,
+$U(R)=M\grav\inner{e_{3}}{R\chi}=M\grav\inner{\Gamma}{\chi}$, whence
+$DU(R)=M\grav\,(\chi\times\Gamma)$ and the reduced Lagrangian is
+$\ell(\Omega,\Gamma)=\tfrac12\inner{\Inertia\Omega}{\Omega}-M\grav\inner{\Gamma}{\chi}$.
+Writing the body angular momentum $\Pi=\Inertia\Omega$ and allowing an external body torque
+$\tau$, \eqref{eq:ex-EP} becomes the classical \emph{heavy--top equations}
+\begin{equation}\label{eq:heavytop}
+  \boxed{\;
+  \Inertia\dot\Omega=\Inertia\Omega\times\Omega+M\grav\,(\Gamma\times\chi)+\tau,
+  \qquad
+  \dot\Gamma=\Gamma\times\Omega \; }
+\end{equation}
+(the reconstruction $\dot R=R\hatm{\Omega}$ recovers the attitude).
+
+On the Hamiltonian side, with $H(\Pi,\Gamma)=\tfrac12\,\Pi\cdot\Inertia^{-1}\Pi
++M\grav\,\Gamma\cdot\chi$ and $\nabla_{\Pi}H=\Inertia^{-1}\Pi=\Omega$,
+$\nabla_{\Gamma}H=M\grav\,\chi$, the motion is Lie--Poisson on
+$\se(3)^{*}=\so(3)^{*}\ltimes\mathbb{R}^{3*}$,
+\begin{equation}\label{eq:LiePoisson}
+  \dot\Pi=\Pi\times\nabla_{\Pi}H+\Gamma\times\nabla_{\Gamma}H,
+  \qquad
+  \dot\Gamma=\Gamma\times\nabla_{\Pi}H ,
+\end{equation}
+i.e.\ $\dot F=\{F,H\}_{-}$ for the minus Lie--Poisson bracket
+\begin{equation}\label{eq:LPbracket}
+  \{F,H\}_{-}(\Pi,\Gamma)
+  =-\Pi\cdot(\nabla_{\Pi}F\times\nabla_{\Pi}H)
+   -\Gamma\cdot(\nabla_{\Pi}F\times\nabla_{\Gamma}H-\nabla_{\Pi}H\times\nabla_{\Gamma}F).
+\end{equation}
+Substituting the gradients into \eqref{eq:LiePoisson} reproduces \eqref{eq:heavytop} with
+$\tau=0$, confirming the two pictures agree.
+
+\begin{remark}[Conserved quantities and forcing]\label{rem:conserved}
+For $\tau=0$: the energy $H$ is conserved; $\norm{\Gamma}^{2}$ is a Casimir of
+\eqref{eq:LPbracket} (hence constant, $=1$); and the spatial vertical component of angular
+momentum $\Pi\cdot\Gamma$ is conserved, since gravity exerts no torque about the vertical.
+A dissipative force $\tau=-c\,\Omega$ ($c>0$) gives $\dot H=\tau\cdot\Omega=-c\norm{\Omega}^{2}\le0$;
+a control torque $\tau=u(t)$ steers the attitude. These are the levers for stabilization
+and tracking on $\SO(3)$.
+\end{remark}
+
+\subsection{Remark: $\SE(3)$ --- spacecraft and underwater vehicles}
+\label{ss:se3}
+
+Replacing $\SO(3)$ by $\SE(3)=\SO(3)\ltimes\mathbb{R}^{3}$, so that a configuration
+$A=(R,x)$ encodes orientation \emph{and} position, models a rigid body free to translate and
+rotate. The body velocity is a twist $(\Omega,V)\in\se(3)$, the kinetic energy is
+$\tfrac12(\inner{\Inertia\Omega}{\Omega}+M\norm{V}^{2})$ (with added--mass and rotation--translation
+coupling terms for a body in fluid, giving the Kirchhoff--Leonard equations), and the
+potential comes from a gravity/buoyancy offset. Equations \eqref{eq:ex-EP} then read as a
+coupled $(\Omega,V)$ system driven by a wrench $f$, and the Hamiltonian is Lie--Poisson on
+$\se(3)^{*}$: the same template, one larger group. This is the standard setting for
+spacecraft attitude--and--orbit control and for autonomous underwater vehicles.
+
+%==================================================================
+\begin{thebibliography}{9}
+
+\bibitem{Sasaki1958}
+S.~Sasaki,
+\emph{On the differential geometry of tangent bundles of Riemannian manifolds},
+T\^ohoku Math.\ J.\ \textbf{10} (1958), 338--354.
+
+\bibitem{Kowalski1971}
+O.~Kowalski,
+\emph{Curvature of the induced Riemannian metric on the tangent bundle of a Riemannian manifold},
+J.\ Reine Angew.\ Math.\ \textbf{250} (1971), 124--129.
+
+\bibitem{MussoTricerri1988}
+E.~Musso and F.~Tricerri,
+\emph{Riemannian metrics on tangent bundles},
+Ann.\ Mat.\ Pura Appl.\ (4) \textbf{150} (1988), 1--19.
+
+\bibitem{GudmundssonKappos2002}
+S.~Gudmundsson and E.~Kappos,
+\emph{On the geometry of tangent bundles},
+Expo.\ Math.\ \textbf{20} (2002), 1--41.
+
+\bibitem{Albuquerque2018}
+R.~Albuquerque,
+\emph{Notes on the Sasaki metric}, 2018.
+
+\bibitem{HatamiSalimi2026}
+A.~Hatami Shahi and H.~R.~Salimi Moghaddam,
+\emph{On the Riemann--Finsler geometry of the tangent bundle of Lie groups with
+two--dimensional commutator subgroup}, 2026.
+
+\bibitem{MarsdenRatiu}
+J.~E.~Marsden and T.~S.~Ratiu,
+\emph{Introduction to Mechanics and Symmetry}, 2nd ed., Springer, 1999
+(Euler--Poincar\'e reduction, heavy top, Lie--Poisson).
+
+\bibitem{HolmSchmahStoica}
+D.~D.~Holm, T.~Schmah and C.~Stoica,
+\emph{Geometric Mechanics and Symmetry: From Finite to Infinite Dimensions},
+Oxford University Press, 2009.
+
+\bibitem{Leonard1997}
+N.~E.~Leonard,
+\emph{Stability of a bottom--heavy underwater vehicle},
+Automatica \textbf{33} (1997), 331--346 (Kirchhoff--Leonard equations on $\SE(3)$).
+
+\end{thebibliography}
+
+\end{document}

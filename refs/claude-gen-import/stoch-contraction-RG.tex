@@ -1,0 +1,564 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{empheq}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+% ---- theorem environments ----
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newtheorem*{recall}{Recalled result (Lee--Chirikjian)}
+
+% ---- macros ----
+\newcommand{\g}{\mathfrak{g}}
+\newcommand{\gstar}{\mathfrak{g}^{*}}
+\newcommand{\so}{\mathfrak{so}(3)}
+\newcommand{\SO}{\mathrm{SO}(3)}
+\newcommand{\SE}{\mathrm{SE}(3)}
+\newcommand{\ad}{\operatorname{ad}}
+\newcommand{\Ad}{\operatorname{Ad}}
+\newcommand{\adstar}{\operatorname{ad}^{*}}
+\newcommand{\Adstar}{\operatorname{Ad}^{*}}
+\newcommand{\Lie}[1]{\mathcal{L}_{#1}}
+\newcommand{\cd}{\,\mathrm{d}}          % straight d
+\newcommand{\dW}{\,\mathrm{d}W}
+\newcommand{\dt}{\,\mathrm{d}t}
+\newcommand{\Strat}{\circ\,\mathrm{d}W}
+\newcommand{\Hess}{\operatorname{Hess}}
+\newcommand{\grad}{\operatorname{grad}}
+\newcommand{\dv}{\operatorname{div}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\J}{\mathbb{J}}
+\newcommand{\Om}{\Omega}
+\newcommand{\Pib}{\Pi}
+\newcommand{\Efr}{E}
+\newcommand{\inner}[2]{\langle #1,#2\rangle}
+\newcommand{\bnabla}{\bar{\nabla}}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\skewop}{skew}
+\newcommand{\half}{\tfrac{1}{2}}
+
+\title{\bf Stochastic Dynamics of Mechanical Systems on Lie Groups:\\
+Force Noise versus Configuration Noise}
+\author{Working draft}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study how randomness enters the equations of motion of a mechanical
+system whose configuration evolves on a Lie group $G$ (e.g.\ $\SO$ or $\SE$),
+working on the phase space (configuration $\times$ velocity). Building on the
+geometric construction of Brownian motion by Lee and Chirikjian
+(\texttt{arXiv:2510.19991}), we compare two ways of injecting noise:
+\emph{(A)} noise entering as a random \emph{force} in the velocity/momentum
+equation, so that the configuration variable is a bounded--variation path with
+zero quadratic variation; and \emph{(B)} noise entering \emph{directly} into the
+configuration (reconstruction) equation, so that the configuration has nonzero
+quadratic variation. Because the It\^o drift is \emph{not} covariant under
+nonlinear changes of variable, the two cases behave differently. We isolate the
+mechanism---the non-tensorial It\^o correction is proportional to the quadratic
+variation of the noise in the transformed directions---and conclude that in
+Case~(A) the geometric (reconstruction) drift is unchanged by the noise, whereas
+in Case~(B) a curvature-induced drift appears. Section~\ref{sec:so3} carries out
+the $\SO$ computation explicitly. Conventions are flagged where they affect the
+result, and claims about the reference paper are tied to its numbered results.
+\end{abstract}
+
+\tableofcontents
+
+%======================================================================
+\section{Notation, preliminaries, and recalled results}
+\label{sec:prelim}
+%======================================================================
+
+Throughout, $(M,\mathbf{g})$ is a smooth $n$-dimensional Riemannian manifold with
+Levi--Civita connection $\nabla$, and $G$ is an $n$-dimensional matrix Lie group
+with Lie algebra $\g=T_eG$. We use the bold symbol $\mathbf{g}$ for the metric
+and the plain symbol $g$ for a group element, following the reference. We adopt
+the Einstein summation convention.
+
+\subsection{Lie-group data}
+
+For $g\in G$ and $\eta\in\g$, left translation $L_g(h)=gh$ has tangent map
+$(T_eL_g)\eta = g\eta$ (matrix shorthand), giving the left-invariant vector field
+$X_\eta(g)=g\eta$. The Lie bracket is
+$[\eta,\zeta]=[X_\eta,X_\zeta](e)$, and $\ad_\xi\eta=[\xi,\eta]$. With the natural
+pairing $\inner{\cdot}{\cdot}$ between $\gstar$ and $\g$, the coadjoint operators
+are defined by $\inner{\Adstar_g\alpha}{\eta}=\inner{\alpha}{\Ad_g\eta}$ and
+$\inner{\adstar_\xi\alpha}{\eta}=\inner{\alpha}{\ad_\xi\eta}$.
+
+A choice of inner product $\inner{\cdot}{\cdot}_\g$ on $\g$ with orthonormal
+basis $\{e_1,\dots,e_n\}$ extends to a \emph{left-invariant} Riemannian metric
+\begin{equation}
+  \mathbf{g}(v,w)=\inner{g^{-1}v}{\,g^{-1}w}_\g, \qquad v,w\in T_gG,
+  \label{eq:leftinv-metric}
+\end{equation}
+whose left-translated frame $E_i(g)=(L_g)_*e_i=g e_i$ is orthonormal:
+$\mathbf{g}(E_i,E_j)=\delta_{ij}$. This frame is globally defined on $G$.
+
+A Lie group is \emph{unimodular} iff $\tr(\ad_\eta)=0$ for all $\eta\in\g$;
+compact groups (hence $\SO$, $\mathrm{SU}(n)$), abelian groups, and the
+Euclidean groups $\SE$ are all unimodular, while $\mathrm{Aff}(\R)$ is not.
+
+\subsection{It\^o and Stratonovich calculus, and the generator}
+
+Given smooth vector fields $X,\sigma_1,\dots,\sigma_m\in\mathfrak{X}(M)$ and
+independent scalar Wiener processes $W_i$, a Stratonovich SDE on $M$,
+\begin{equation}
+  \cd x = X(x)\dt + \sum_{i=1}^m \sigma_i(x)\Strat_i,
+  \label{eq:strat-generic}
+\end{equation}
+is equivalent to the It\^o SDE $\cd x=\tilde X(x)\dt+\sum_i\sigma_i(x)\dW_i$ with
+the modified drift
+\begin{equation}
+  \tilde X = X + \half\sum_{i=1}^m \nabla_{\sigma_i}\sigma_i .
+  \label{eq:ito-strat}
+\end{equation}
+This is Theorem~1 of the reference. The correction term
+$\half\sum_i\nabla_{\sigma_i}\sigma_i$ is the manifold generalization of the
+familiar Euclidean It\^o--Stratonovich term; the Christoffel part of the
+covariant derivative is what makes it geometric.
+
+The (unique) infinitesimal generator of \eqref{eq:strat-generic} acting on
+$f\in C^\infty(M)$ is (Theorem~2)
+\begin{equation}
+  Af = X[f] + \half\sum_{i=1}^m \sigma_i\big[\sigma_i[f]\big]
+     = \tilde X[f] + \half\sum_{i=1}^m \Hess_f(\sigma_i,\sigma_i),
+  \label{eq:generator}
+\end{equation}
+where $\Hess_f(X,Y)=X[Y[f]]-(\nabla_XY)[f]$. The generator is a genuine
+invariant of the diffusion: two SDEs (in different charts, or in It\^o vs.\
+Stratonovich form) define the same process in law iff they share a generator.
+The \emph{drift vector field}, by contrast, is invariant only in the
+Stratonovich form.
+
+\subsection{Brownian motion on manifolds and Lie groups}
+
+Brownian motion on $M$ is the diffusion with generator $\half\Delta$, where
+$\Delta$ is the Laplace--Beltrami operator. Injecting unit noise along an
+orthonormal frame $\{E_i\}$ and fixing the drift to reproduce $\half\Delta$ gives
+the following (Theorem~4):
+\begin{equation}
+  \cd x = -\half\sum_{i=1}^n \nabla_{E_i}E_i\dt + \sum_{i=1}^n E_i\Strat_i,
+  \qquad\Longleftrightarrow\qquad
+  \cd x = \sum_{i=1}^n E_i\dW_i .
+  \label{eq:bm-manifold}
+\end{equation}
+The Stratonovich drift $-\half\sum_i\nabla_{E_i}E_i$ is a curvature-induced term
+measuring the failure of the frame to be parallel; the It\^o form is
+\emph{drift-free} when written intrinsically. Specializing to the left-invariant
+frame $E_i=ge_i$ on a Lie group (Theorem~5),
+\begin{equation}
+  g^{-1}\cd g = \half\sum_{i=1}^n \adstar_{e_i}e_i\dt + \sum_{i=1}^n e_i\Strat_i,
+  \qquad\Longleftrightarrow\qquad
+  g^{-1}\cd g = \sum_{i=1}^n e_i\dW_i,
+  \label{eq:bm-liegroup}
+\end{equation}
+where $\gstar$ is identified with $\g$ via the inner product. The identity
+$\nabla_{E_i}E_i=-g\,\adstar_{e_i}e_i$ (Koszul formula on a left-invariant
+metric) converts \eqref{eq:bm-manifold} into \eqref{eq:bm-liegroup}.
+
+\begin{recall}[Corollary~1]
+If $G$ is unimodular, then $\sum_i\adstar_{e_i}e_i=0$, and the Stratonovich SDE
+\eqref{eq:bm-liegroup} reduces to the drift-free form
+$g^{-1}\cd g=\sum_i e_i\Strat_i$.
+\end{recall}
+
+Finally, when $M$ is embedded in $\R^{\bar n}$ with orthogonal projection
+$P(x)\colon\R^{\bar n}\to T_xM$, injecting noise along the projected ambient
+frame $P(x)e_i$ yields (Theorem~7)
+\begin{equation}
+  \cd x = -\half\sum_{i=1}^{\bar n}\nabla_{Pe_i}Pe_i\dt+\sum_{i=1}^{\bar n}Pe_i\Strat_i,
+  \qquad\Longleftrightarrow\qquad
+  \cd x = \half H\dt + \sum_{i=1}^{\bar n}Pe_i\dW_i,
+  \label{eq:bm-embedded}
+\end{equation}
+where $H=\sum_i \mathrm{II}(E_i,E_i)$ is the mean curvature vector and
+$\mathrm{II}$ the second fundamental form. The It\^o form now carries the drift
+$\half H$, purely normal to $M$; being normal, it does not enter the generator,
+but it is exactly what keeps the ambient sample path on $M$.
+
+\subsection{Phase space of a mechanical system}
+\label{sec:phasespace}
+
+A mechanical system on $G$ lives on the tangent bundle $TG$ (Lagrangian picture)
+or cotangent bundle $T^*G$ (Hamiltonian picture). Using \emph{body}
+(left) trivialization,
+\begin{equation}
+  TG \;\cong\; G\times\g, \qquad (g,\dot g)\longmapsto (g,\xi),\quad \xi=g^{-1}\dot g\in\g,
+\end{equation}
+and dually $T^*G\cong G\times\gstar$ with body momentum $\mu\in\gstar$. The state
+is the pair (configuration, velocity) $=(g,\xi)$. Equations of motion split into
+a first-order \emph{reconstruction} (kinematic) equation and a
+\emph{dynamic} equation:
+\begin{align}
+  \text{(reconstruction)}\qquad & \cd g = g\,\xi\dt = (T_eL_g)\xi\dt, \label{eq:recon}\\
+  \text{(dynamics, Euler--Poincar\'e)}\qquad & \cd \mu = \big(\adstar_\xi\mu + f\big)\dt,
+      \qquad \xi=\mathbb{I}^{-1}\mu, \label{eq:EP}
+\end{align}
+where $\mathbb{I}\colon\g\to\gstar$ is the (reduced) inertia tensor and
+$f\in\gstar$ is the reduced external force/torque. Randomness will be introduced
+either into \eqref{eq:EP} (Case~A) or into \eqref{eq:recon} (Case~B).
+
+The coadjoint term in \eqref{eq:EP} is the geometric heart of the dynamics, so we
+record why it appears. It is the exact dual of the constraint that admissible
+variations of the body velocity $\xi=g^{-1}\dot g$ must satisfy.
+
+\begin{lemma}[Euler--Poincar\'e]
+\label{lem:EP}
+Let $\ell\colon\g\to\R$ be a reduced (left-invariant) Lagrangian and set
+$\mu=\delta\ell/\delta\xi\in\gstar$. Then Hamilton's principle
+$\delta\int_{t_0}^{t_1}\ell(\xi)\dt=0$, taken over curves $g(t)$ with fixed
+endpoints, is equivalent to
+\begin{equation}
+  \frac{\cd}{\cd t}\frac{\delta\ell}{\delta\xi}=\adstar_\xi\frac{\delta\ell}{\delta\xi},
+  \qquad\text{i.e.}\qquad \dot\mu=\adstar_\xi\mu .
+  \label{eq:EP-free}
+\end{equation}
+Adding a non-conservative force $f\in\gstar$ through the Lagrange--d'Alembert
+principle yields $\dot\mu=\adstar_\xi\mu+f$, which is \eqref{eq:EP}; for the
+kinetic Lagrangian $\ell(\xi)=\half\inner{\mathbb{I}\xi}{\xi}$ one has
+$\mu=\mathbb{I}\xi$.
+\end{lemma}
+
+\begin{proof}
+Write $\delta=\partial_\epsilon|_{\epsilon=0}$ for the variation and
+$\dot{(\cdot)}=\partial_t$ for a family $g(t,\epsilon)$, and set
+$\xi=g^{-1}\dot g$ and $\eta=g^{-1}\delta g\in\g$, with $\eta(t_0)=\eta(t_1)=0$.
+Differentiating the two definitions and using that mixed partials commute,
+\begin{align*}
+  \delta\xi &= -g^{-1}(\delta g)g^{-1}\dot g + g^{-1}\,\partial_\epsilon\partial_t g
+             = -\eta\xi + g^{-1}\,\partial_t\partial_\epsilon g,\\
+  \dot\eta  &= -g^{-1}(\dot g)g^{-1}\delta g + g^{-1}\,\partial_t\partial_\epsilon g
+             = -\xi\eta + g^{-1}\,\partial_t\partial_\epsilon g,
+\end{align*}
+so subtracting eliminates the common second-order term and leaves the
+\emph{constrained-variation identity}
+\begin{equation}
+  \delta\xi=\dot\eta+[\xi,\eta]=\dot\eta+\ad_\xi\eta .
+  \label{eq:constrained-var}
+\end{equation}
+The bracket is precisely the non-commutativity of $G$; on an abelian group it
+drops out. Now vary the action, using \eqref{eq:constrained-var}, the definition
+$\inner{\adstar_\xi\mu}{\eta}=\inner{\mu}{\ad_\xi\eta}$, and integration by parts:
+\begin{align*}
+  \delta\!\int_{t_0}^{t_1}\!\ell(\xi)\dt
+  &=\int_{t_0}^{t_1}\!\Big\langle \tfrac{\delta\ell}{\delta\xi},\,\delta\xi\Big\rangle\dt
+   =\int_{t_0}^{t_1}\!\big\langle \mu,\,\dot\eta+\ad_\xi\eta\big\rangle\dt\\
+  &=\underbrace{\big[\inner{\mu}{\eta}\big]_{t_0}^{t_1}}_{=\,0}
+   +\int_{t_0}^{t_1}\!\big\langle -\dot\mu+\adstar_\xi\mu,\;\eta\big\rangle\dt .
+\end{align*}
+The boundary term vanishes since $\eta$ vanishes at the endpoints. As $\eta(t)\in\g$
+is otherwise arbitrary, stationarity forces $-\dot\mu+\adstar_\xi\mu=0$, which is
+\eqref{eq:EP-free}.
+\end{proof}
+
+\begin{remark}[Frame-transport reading]
+Equivalently, $\mu$ is the spatial momentum $\pi=\Adstar_{g^{-1}}\mu$ expressed in
+the moving body frame. Newton's law is $\dot\pi=f_{\mathrm{spatial}}$, and
+differentiating $\pi=\Adstar_{g^{-1}}\mu$ reproduces the $\adstar_\xi\mu$ term:
+it is the group version of the transport rule
+$\dot{(\cdot)}_{\mathrm{space}}=\dot{(\cdot)}_{\mathrm{body}}+\ad_\xi(\cdot)$. The
+dual operator $\adstar$ (rather than $\ad$) appears because momenta live in
+$\gstar$ and pair with velocities in $\g$. The sign is fixed by the left (body)
+trivialization; a right-invariant reduction flips it to $-\adstar_\xi\mu$. On
+$\SO$, \eqref{eq:EP-free} reads $\dot\Pi=\Pi\times\Om$ (Section~\ref{sec:so3}).
+\end{remark}
+
+\medskip
+\noindent\emph{The diffeomorphism-sensitivity of the It\^o drift.}
+The organizing fact for what follows is the transformation law of an It\^o SDE
+under a change of variables $y=\phi(x)$. If $\cd x^k=b^k\dt+\sigma^k_i\dW_i$, then
+It\^o's lemma gives
+\begin{equation}
+  \cd y^a = \Big(\underbrace{\partial_k\phi^a\,b^k}_{\text{tensorial}}
+              \;+\; \underbrace{\half\,\partial^2_{k l}\phi^a\,\big(\sigma\sigma^\top\big)^{k l}}_{\text{non-tensorial correction}}\Big)\dt
+              + \partial_k\phi^a\,\sigma^k_i\dW_i .
+  \label{eq:ito-transform}
+\end{equation}
+The first drift piece transforms like a vector field; the second does not. The
+crucial observation is that the correction is \textbf{proportional to the
+quadratic covariation of the noise}, $(\sigma\sigma^\top)^{kl}$. Consequently, in
+any set of directions where the noise coefficient vanishes---i.e.\ where the
+process has zero quadratic variation---the It\^o drift transforms tensorially and
+picks up no geometric correction. This single mechanism distinguishes the two
+cases below.
+
+%======================================================================
+\section{The two cases}
+\label{sec:cases}
+%======================================================================
+
+\subsection{Case A: noise as a random force (zero quadratic variation in $g$)}
+
+Here the noise enters only the dynamic equation \eqref{eq:EP}, modeling a random
+force/torque. On the trivialized phase space $G\times\gstar$,
+\begin{empheq}[box=\fbox]{align}
+  \cd g   &= g\,\xi \dt, \qquad \xi=\mathbb{I}^{-1}\mu, \label{eq:caseA-g}\\
+  \cd \mu &= \big(\adstar_\xi\mu + f(g,\mu)\big)\dt + \Sigma(g,\mu)\dW, \label{eq:caseA-mu}
+\end{empheq}
+with $W$ an $m$-dimensional Wiener process and $\Sigma\colon G\times\gstar\to
+(\gstar)^{m}$ the (possibly state-dependent) noise coefficient. This is the
+Langevin / stochastic-Hamiltonian form of the dynamics.
+
+\begin{proposition}[Structure of the drift in Case A]
+\label{prop:caseA}
+For the system \eqref{eq:caseA-g}--\eqref{eq:caseA-mu}:
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em]
+  \item The configuration $g$ has zero quadratic variation; the reconstruction
+  equation \eqref{eq:caseA-g} is identical in the It\^o and Stratonovich senses.
+  \item The It\^o--Stratonovich discrepancy is confined to the $\mu$-fiber and
+  equals $\half(\partial_\mu\Sigma)\Sigma$. Because the momentum fiber $\gstar$
+  is a vector space carried with a flat (trivial) connection in body coordinates,
+  this correction is purely Euclidean; it involves \emph{no} curvature of $G$. If
+  $\Sigma$ is independent of $\mu$, the correction vanishes and the two
+  conventions coincide everywhere.
+  \item Under any configuration reparametrization $g\mapsto\psi(g)$ lifted to
+  $TG$ (in particular the intrinsic $\leftrightarrow$ ambient-embedding map on
+  the configuration factor), the reconstruction drift $g\xi$ transforms as a
+  genuine vector field, with no extra term. Equivalently, no curvature-induced
+  or ``pinning'' drift is generated by the noise.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}[Sketch]
+(i) Since $\cd g=g\xi\dt$ contains no $\dW$, the path $t\mapsto g_t$ is of bounded
+variation, so $[g,g]_t\equiv 0$ and the $\half\,\cd\sigma\,\dW$ term in the
+It\^o--Stratonovich bridge \eqref{eq:ito-strat} vanishes for the $g$-equation.
+(ii) Only $\mu$ carries $\dW$. In \eqref{eq:ito-transform} the sole nonzero block
+of $\sigma\sigma^\top$ lies in the $\mu\mu$ indices, so the correction is
+$\half\,\partial^2_{\mu\mu}(\cdot)\,\Sigma\Sigma^\top$, computed with the flat
+connection on $\gstar$; there is no Christoffel contribution from $G$. (iii) Take
+$\phi(g,\mu)=(\psi(g),\mu)$ (a configuration chart change). Then
+$\partial^2_{\mu\mu}\psi=0$ and $\partial_\mu\psi=0$, so by
+\eqref{eq:ito-transform} the $g$-drift correction vanishes identically and $g\xi$
+transforms tensorially.
+\end{proof}
+
+The content of Proposition~\ref{prop:caseA} is that \emph{introducing force noise
+does not substantially change the drift field}: the reconstruction drift is
+untouched, and the dynamic drift changes at most by a flat, chart-independent
+term that is absent for additive ($\mu$-independent) noise. The geometry of $G$
+never couples to the noise at the level of the drift.
+
+\subsection{Case B: noise in the configuration (nonzero quadratic variation)}
+
+Here the noise enters the reconstruction equation, so the configuration itself
+diffuses. In the purely kinematic (overdamped) limit one drops the velocity fiber
+and writes, using the left-invariant frame,
+\begin{empheq}[box=\fbox]{align}
+  g^{-1}\cd g &= \sum_{i=1}^n e_i\Strat_i && \text{(Stratonovich, unimodular $G$),}\label{eq:caseB-strat}\\
+  g^{-1}\cd g &= \sum_{i=1}^n e_i\dW_i    && \text{(It\^o, intrinsic).}\label{eq:caseB-ito}
+\end{empheq}
+More generally the Stratonovich drift is $\half\sum_i\adstar_{e_i}e_i$ as in
+\eqref{eq:bm-liegroup}. This is exactly the configuration Brownian motion of the
+reference. A hybrid mechanical version keeps \eqref{eq:EP} and adds
+$\sum_i (ge_i)\Strat_i$ to \eqref{eq:recon}; the analysis of the configuration
+drift is identical.
+
+\begin{proposition}[Structure of the drift in Case B]
+\label{prop:caseB}
+For \eqref{eq:caseB-strat}--\eqref{eq:caseB-ito}:
+\begin{enumerate}[label=(\roman*),leftmargin=2.2em]
+  \item The configuration $g$ has nonzero quadratic variation
+  $[\,g^{-1}\cd g,\,g^{-1}\cd g\,]_t = n\,I\,\cd t$ in the frame.
+  \item The intrinsic Stratonovich drift is $\half\sum_i\adstar_{e_i}e_i$, which
+  \emph{vanishes} for unimodular $G$; the intrinsic It\^o drift also vanishes.
+  \item Written in the ambient embedding $x=\iota(g)\in\R^{\bar n}$, the It\^o
+  drift acquires the mean-curvature term $\half H$ of \eqref{eq:bm-embedded}. This
+  term is chart-dependent: it is generated purely by the non-tensorial correction
+  in \eqref{eq:ito-transform}, which is now nonzero because
+  $\sigma\sigma^\top\neq 0$ in the configuration directions.
+\end{enumerate}
+\end{proposition}
+
+Thus in Case~B the answer to ``does noise change the drift?'' is
+\emph{representation-dependent but genuinely yes}: the intrinsic Stratonovich
+drift is unchanged (indeed zero for unimodular groups), while the It\^o drift in
+ambient coordinates acquires a curvature-induced correction. The two statements
+are reconciled by \eqref{eq:ito-transform}: the nonlinear embedding
+$\iota\colon G\hookrightarrow\R^{\bar n}$ has nonzero second derivative, and it is
+contracted against the (now nonzero) configuration-space quadratic variation.
+
+\subsection{Summary of the mechanism}
+The two cases are separated by a single scalar quantity---the quadratic variation
+of the configuration:
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & \textbf{Case A (force noise)} & \textbf{Case B (config.\ noise)}\\
+\midrule
+QV of configuration $g$        & $0$                                   & $\neq 0$\\
+It\^o $=$ Stratonovich for $g$? & yes                                  & no\\
+Curvature/pinning drift?        & none                                 & appears in ambient It\^o form\\
+Intrinsic Stratonovich drift    & mechanical drift only                & $\half\sum_i\adstar_{e_i}e_i$ ($=0$ if unimodular)\\
+Effect of a config.\ diffeo.\   & drift is tensorial (invariant)       & It\^o drift shifts by $\half\partial^2\iota\,(\sigma\sigma^\top)$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%======================================================================
+\section{Worked example: the rigid body on $\SO$}
+\label{sec:so3}
+%======================================================================
+
+\subsection{Deterministic setup and conventions}
+
+Let $R\in\SO=\{R\in\R^{3\times3}:R^\top R=I,\ \det R=1\}$ with Lie algebra
+$\so=\{S:S^\top=-S\}$. The hat map $\hat{\cdot}\colon\R^3\to\so$ satisfies
+$\hat a\, b=a\times b$, with inverse (vee) $\vee$. We use the body angular
+velocity $\Om\in\R^3$, $\ \hat\Om=R^\top\dot R$, so the reconstruction equation
+is $\dot R=R\hat\Om$.
+
+Following the reference, the inner product on $\so$ is
+$\inner{\eta}{\zeta}_\g=\half\tr(\eta^\top\zeta)=(\eta^\vee)^\top(\zeta^\vee)$,
+with orthonormal basis $e_i^{\g}=\hat e_i$ ($\{e_i\}$ the standard basis of
+$\R^3$) and left-invariant orthonormal frame $E_i=R\hat e_i$. Because $\SO$ is
+unimodular and its induced (bi-invariant) metric coincides with the left-invariant
+one, the condition \eqref{eq:leftinv-metric}$\leftrightarrow$ambient holds, so
+both the intrinsic and embedded constructions apply.
+
+The rigid-body dynamics use the inertia matrix $\J=\J^\top\succ0$ and body
+angular momentum $\Pib=\J\Om$. Euler's equation with body torque $\tau$ is
+\begin{equation}
+  \J\dot\Om = \J\Om\times\Om + \tau
+  \qquad\Longleftrightarrow\qquad
+  \dot\Pib=\Pib\times\Om+\tau=\adstar_\Om\Pib+\tau,
+  \label{eq:euler}
+\end{equation}
+where under the identification $\gstar\cong\g\cong\R^3$ we have
+$\adstar_\Om\Pib=\Pib\times\Om$. \emph{Convention flag:} the sign of the gyroscopic
+term follows from $\J\dot\Om+\Om\times\J\Om=\tau$; a different hat/bracket sign
+convention flips it but does not affect any conclusion below.
+
+\subsection{Case A on $\SO$: rigid body driven by a random torque}
+
+Model the torque as $\tau\dt\to \tau(R,\Om)\dt+\Sigma(R,\Om)\dW$ with $W$ a
+$3$-dimensional Wiener process. On $\SO\times\R^3$,
+\begin{align}
+  \cd R   &= R\hat\Om\dt, \label{eq:A-so3-R}\\
+  \cd \Om &= \J^{-1}\!\big(\J\Om\times\Om+\tau\big)\dt + \J^{-1}\Sigma\dW. \label{eq:A-so3-Om}
+\end{align}
+
+\paragraph{No configuration drift from the noise.}
+Equation \eqref{eq:A-so3-R} contains no $\dW$, hence $[R,R]_t\equiv0$. The
+constraint is preserved without any correction:
+\begin{equation}
+  \cd(R^\top R)=(\cd R)^\top R+R^\top(\cd R)+\underbrace{(\cd R)^\top(\cd R)}_{=0}
+  =\big(\hat\Om^\top+\hat\Om\big)R^\top R\dt = 0,
+\end{equation}
+using $\hat\Om^\top=-\hat\Om$. Compare this with Case~B below, where the vanishing
+of $\cd(R^\top R)$ requires a nonzero It\^o drift. In particular, the ambient
+matrix form of \eqref{eq:A-so3-R} has drift $R\hat\Om$ and \emph{no}
+mean-curvature (pinning) term.
+
+\paragraph{Fiber correction only.}
+The only It\^o--Stratonovich discrepancy is in \eqref{eq:A-so3-Om}. Writing
+$\sigma(R,\Om)=\J^{-1}\Sigma$, the Stratonovich version of \eqref{eq:A-so3-Om} has
+the same drift plus $\half\sum_a(\partial_\Om\sigma_a)\sigma_a$, a Euclidean term
+on the flat fiber $\R^3$. If $\Sigma$ is constant, \eqref{eq:A-so3-Om} is
+simultaneously an It\^o and a Stratonovich equation. \emph{Conclusion:} the
+phase-space drift is the deterministic Euler drift
+$\big(R\hat\Om,\ \J^{-1}(\J\Om\times\Om+\tau)\big)$, altered at most by a flat
+fiber term; the curvature of $\SO$ does not enter.
+
+\subsection{Case B on $\SO$: configuration Brownian motion}
+
+Now inject noise into the configuration, i.e.\ the Brownian motion of the
+reference. Since $\SO$ is unimodular, the intrinsic Stratonovich form is
+drift-free:
+\begin{equation}
+  \cd R=\sum_{i=1}^3 R\hat e_i\Strat_i. \label{eq:B-so3-strat}
+\end{equation}
+Convert to It\^o in the ambient $\R^{3\times3}$ coordinates using
+$A\Strat=A\dW+\half\,\cd A\,\dW$ with $A_i=R\hat e_i$. Because now $R$ carries the
+noise,
+\begin{equation}
+  \cd(R\hat e_i)\,\dW_i
+  =\Big(\sum_j R\hat e_j\Strat_j\Big)\hat e_i\,\dW_i
+  =\sum_j R\hat e_j\hat e_i\,\dW_j\dW_i
+  =R\hat e_i^{\,2}\dt,
+\end{equation}
+using $\dW_j\dW_i=\delta_{ij}\dt$. Summing and using
+$\sum_{i=1}^3\hat e_i^{\,2}=-2I$,
+\begin{equation}
+  \half\sum_{i=1}^3 \cd(R\hat e_i)\,\dW_i=\half R\Big(\sum_i\hat e_i^{\,2}\Big)\dt=-R\dt,
+\end{equation}
+so the It\^o form is
+\begin{equation}
+  \cd R=-R\dt+\sum_{i=1}^3 R\hat e_i\dW_i. \label{eq:B-so3-ito}
+\end{equation}
+The drift $-R$ is exactly $\half H$ with mean curvature vector $H=-2R$
+(the reference's Corollary~2), and it is precisely what enforces
+$\cd(R^\top R)=0$ in the It\^o calculus:
+\begin{equation}
+  \cd(R^\top R)=\big(\!-\!R^\top R-R^\top R\big)\dt
+  +\sum_i\hat e_i^\top R^\top R\hat e_i\dt
+  =\big(-2I - \textstyle\sum_i\hat e_i^{\,2}\big)\dt
+  =(-2I+2I)\dt=0.
+\end{equation}
+
+\paragraph{The drift is an artifact of the embedding.}
+In the \emph{intrinsic} body form the It\^o equation is drift-free,
+$R^{-1}\cd R=\sum_i \hat e_i\dW_i$. The drift $-R$ appears \emph{only} after the
+nonlinear embedding $\iota\colon\SO\hookrightarrow\R^{3\times3}$, whose second
+derivative is contracted against the configuration quadratic variation---the
+$-R$ is the concrete value of the $\half\partial^2\iota\,(\sigma\sigma^\top)$ term
+in \eqref{eq:ito-transform}. This is the sense in which ``It\^o changes under
+diffeomorphisms'': the same law is written with drift $0$ intrinsically and drift
+$-R$ in ambient coordinates.
+
+\subsection{Comparison and answer to the guiding question}
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Case A (random torque).} The configuration has zero quadratic
+  variation, the reconstruction drift $R\hat\Om$ is unchanged by the noise, and
+  no curvature/pinning term appears in \emph{any} representation. The noise
+  perturbs only the velocity fiber, and only by a flat term (zero for additive
+  noise). \emph{Introducing noise does not substantially change the drift field.}
+
+  \item \textbf{Case B (configuration noise).} The configuration has nonzero
+  quadratic variation. Intrinsically (body frame) the drift still vanishes---for
+  the specific reason that $\SO$ is unimodular---but in the ambient embedding a
+  genuine curvature-induced drift $-R=\half H$ appears. \emph{Introducing noise
+  does substantially change the It\^o drift, in a chart-dependent way.}
+\end{itemize}
+
+The unifying statement is that the extra drift is proportional to the quadratic
+variation of the noise in the transformed directions,
+$\propto \partial^2\phi\,(\sigma\sigma^\top)$; force noise puts this variation in
+the (flat) velocity fiber, while configuration noise puts it in the (curved) base,
+which is why only the latter produces a geometric drift.
+
+%======================================================================
+\section*{Open points / conventions to revisit}
+\addcontentsline{toc}{section}{Open points / conventions to revisit}
+%======================================================================
+\begin{itemize}[leftmargin=1.4em]
+  \item The Euler-equation sign and the $\half$ scaling in the $\so$ inner product
+  are those of the reference; a spatial-frame (right-invariant) noise model would
+  replace $\adstar$ by its right-invariant analogue and is not treated here.
+  \item Case~A is stated for body-frame (left-trivialized) additive/multiplicative
+  torque noise. A fully intrinsic treatment of \emph{multiplicative} fiber noise
+  on $T^*G$ (e.g.\ $\Sigma$ depending on $\mu$ through a non-flat fiber metric)
+  would need the vertical connection made explicit; only the flat case is claimed
+  above.
+  \item References beyond the attached paper (kinetic Brownian motion / stochastic
+  Hamiltonian systems on Lie groups) are alluded to conceptually but not cited;
+  these should be pinned to specific sources before circulation.
+\end{itemize}
+
+\end{document}

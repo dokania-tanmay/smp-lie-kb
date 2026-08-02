@@ -1,0 +1,882 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage[expansion=false]{microtype}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,
+            urlcolor=blue!55!black]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Notation follows Bullo & Lewis, "Geometric Control of Mechanical Systems"
+%  (TAM 49, Springer 2004) and Simpson-Porco & Bullo, "Contraction Theory on
+%  Riemannian Manifolds".
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\Gm}{\mathbb{G}}                      % kinetic energy metric
+\newcommand{\Rm}{\mathbb{R}}
+\newcommand{\ip}[2]{\langle\!\langle #1 , #2 \rangle\!\rangle}
+\newcommand{\ipG}[2]{\langle\!\langle #1 , #2 \rangle\!\rangle_{\Gm}}
+\newcommand{\dpair}[2]{\langle #1 ; #2 \rangle}   % canonical pairing
+\newcommand{\Gsharp}{\Gm^{\sharp}}
+\newcommand{\Gflat}{\Gm^{\flat}}
+\newcommand{\Hess}{\operatorname{Hess}}
+\newcommand{\grad}{\operatorname{grad}}
+\newcommand{\dive}{\operatorname{div}}
+\newcommand{\hor}{\operatorname{hor}}
+\newcommand{\ver}{\operatorname{ver}}
+\newcommand{\Sect}{\mathcal{K}}
+\newcommand{\Jac}{\mathcal{R}}
+\newcommand{\Damp}{\mathcal{D}}
+\newcommand{\Stiff}{\Psi}
+\newcommand{\Gsec}[1]{\Gamma^{\infty}(#1)}
+\newcommand{\Cinf}[1]{C^{\infty}(#1)}
+\newcommand{\id}{\mathrm{Id}}
+\newcommand{\Lie}{\mathcal{L}}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\normG}[1]{\lVert #1 \rVert_{\Gm}}
+\newcommand{\Tstar}{T^{*}Q}
+\newcommand{\Dt}{\tfrac{D}{dt}}
+
+\DeclareMathOperator{\spec}{spec}
+\DeclareMathOperator{\Vol}{Vol}
+\DeclareMathOperator{\tr}{tr}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\title{\bfseries Contraction-Based Control of Simple Mechanical Systems:\\
+A Cotangent-Bundle Formulation}
+\author{Notes following Bullo--Lewis \cite{BL04} and Simpson-Porco--Bullo \cite{SB13}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We set up the design of contraction-based feedback for a simple mechanical control
+system $\Sigma = (Q,\Gm,V,\mathcal{F})$ in three stages. First we write the
+uncontrolled dynamics on $\Tstar$ as a Hamiltonian vector field with respect to
+the canonical symplectic form $\omega_0$ and verify that the drift is symplectic
+(\S\ref{sec:cotangent}). Second we show that this is precisely the obstruction:
+\emph{no} symplectic vector field can be contracting in the sense of
+\cite[Def.~2.1]{SB13}, so any contraction-based design must deliberately destroy
+$\omega_0$ (\S\ref{sec:obstruction}). Third we compute, in the splitting of
+$T(\Tstar)$ induced by the Levi-Civita connection $\nabla$ of $\Gm$, the exact
+covariant variational equations of the closed loop, show that block-diagonal
+(Sasaki-type) contraction metrics fail \emph{identically} regardless of the
+feedback, and give a sufficient condition for contraction using a metric with a
+base--fiber cross term (\S\S\ref{sec:splitting}--\ref{sec:main}). The resulting
+condition is
+\[
+  d \;>\; \frac{\sigma - \mu}{2\sqrt{\mu}},
+\]
+where $d$ is the damping gain and $[\mu,\sigma]$ brackets the spectrum of the
+\emph{curvature-corrected shaped stiffness}
+$\Stiff_\alpha = \Hess^{\sharp}(V+\varphi) + \Jac_v$, with $\Jac_v$ the Jacobi
+operator of $(Q,\Gm)$. A short audit of which claims are quoted and which are
+derived here appears in \S\ref{sec:audit}.
+\end{abstract}
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Notation and standing setup}
+\label{sec:notation}
+
+We follow \cite[Ch.~3--4]{BL04} for the mechanics and \cite[\S1]{SB13} for the
+contraction-theoretic objects.
+
+\begin{itemize}[leftmargin=1.6em,itemsep=2pt]
+\item $Q$ is a smooth, connected, $n$-dimensional \emph{configuration manifold};
+      $\pi : \Tstar \to Q$ and $\tau_Q : TQ \to Q$ are the bundle projections.
+\item $\Gm$ is the \emph{kinetic energy metric}, i.e.\ the Riemannian metric on
+      $Q$ obtained from the inertia tensor \cite[\S4.2.3]{BL04}. We write
+      $\ipG{\cdot}{\cdot}$ for the induced inner product on each $T_qQ$, and
+      $\normG{\cdot}$ for the norm. The flat and sharp maps are
+      $\Gflat : TQ \to \Tstar$, $\Gsharp = (\Gflat)^{-1}$; $\Gsharp$ also denotes
+      the induced inner product $\ip{\cdot}{\cdot}_{\Gm^{-1}}$ on fibres of
+      $\Tstar$.
+\item $\nabla \equiv \overset{\Gm}{\nabla}$ is the Levi-Civita connection of
+      $\Gm$; it is torsion-free and satisfies $\nabla\Gm = 0$, hence
+      $\nabla\Gsharp = 0$ and $\nabla\Gflat = 0$.
+\item $\dpair{\alpha_q}{v_q}$ is the canonical (metric-free) pairing between
+      $T^{*}_qQ$ and $T_qQ$.
+\item Curvature convention:
+      $R(X,Y)Z = \nabla_X\nabla_Y Z - \nabla_Y\nabla_X Z - \nabla_{[X,Y]}Z$.
+      Sectional curvature of the plane spanned by $u,v$:
+      \[
+        \Sect(u,v) \;=\;
+        \frac{\ipG{R(u,v)v}{u}}{\normG{u}^2\normG{v}^2 - \ipG{u}{v}^2}.
+      \]
+\item For $\psi \in \Cinf{Q}$, $\grad\psi = \Gsharp\,d\psi$ and, as in
+      \cite[\S5]{SB13},
+      $\Hess\psi(v_q,w_q) = \ip{v_q}{\nabla_{w_q}\grad\psi}_{\Gm}$. We write
+      $\Hess^{\sharp}\psi \coloneqq \nabla\grad\psi$ for the associated
+      $\Gm$-symmetric $(1,1)$-tensor field, so that
+      $\Hess\psi(u,w) = \ipG{\Hess^{\sharp}\psi(u)}{w}$.
+\item $\Sigma = (Q,\Gm,V,\mathcal{F})$ is a \emph{simple mechanical control
+      system} \cite[\S4.6.2]{BL04}: $V \in \Cinf{Q}$ is the potential and
+      $\mathcal{F} = \{F^1,\dots,F^m\} \subset \Gsec{\Tstar}$ are the input
+      covector fields (forces). The input vector fields are
+      $Y_a = \Gsharp F^a$.
+\end{itemize}
+
+On the Lagrangian side, $\Sigma$ is the affine connection control system
+\cite[\S4.6.3]{BL04}
+\begin{equation}
+  \nabla_{\gamma'(t)}\gamma'(t)
+  \;=\; -\grad V(\gamma(t)) \;+\; \sum_{a=1}^{m} u^a(t)\, Y_a(\gamma(t)).
+  \label{eq:accs}
+\end{equation}
+The object of these notes is a feedback rendering the closed loop
+\emph{contracting} in the sense of \cite[Def.~2.1]{SB13}: there is a Riemannian
+metric $G$ on the state manifold $M$ and $\lambda>0$ with
+\begin{equation}
+  \ip{\overset{G}{\nabla}_{w_x}X}{w_x}_{G(x)} \;\le\; -\lambda\,\norm{w_x}_{G(x)}^2
+  \qquad \forall\, x \in \mathcal{U},\ \forall\, w_x \in T_xM .
+  \label{eq:contraction}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The uncontrolled dynamics on \texorpdfstring{$\Tstar$}{T*Q} are symplectic}
+\label{sec:cotangent}
+
+\subsection{Legendre transform and Hamiltonian}
+
+Because $\Gm$ is positive-definite, the Legendre transform
+$\mathbb{F}L = \Gflat : TQ \to \Tstar$ is a fibrewise linear diffeomorphism
+(hyperregularity). The Hamiltonian is
+\begin{equation}
+  H : \Tstar \to \Rm,
+  \qquad
+  H(\alpha_q) \;=\; \tfrac12\,\dpair{\alpha_q}{\Gsharp\alpha_q} + V(q)
+  \;=\; \tfrac12\norm{\alpha_q}^2_{\Gm^{-1}} + V(q).
+  \label{eq:H}
+\end{equation}
+
+\subsection{Canonical structures}
+
+Let $\theta_0 \in \Gsec{T^{*}(\Tstar)}$ be the tautological (Liouville) one-form,
+$\dpair{\theta_0(\alpha_q)}{w} = \dpair{\alpha_q}{T_{\alpha_q}\pi(w)}$, and set
+$\omega_0 \coloneqq -d\theta_0$. In natural coordinates $(q^i,p_i)$ on $\Tstar$,
+\begin{equation}
+  \theta_0 = p_i\,dq^i,
+  \qquad
+  \omega_0 = dq^i \wedge dp_i .
+  \label{eq:omega0}
+\end{equation}
+The Hamiltonian vector field $X_H \in \Gsec{T(\Tstar)}$ is defined by
+$i_{X_H}\omega_0 = dH$, which in these coordinates is Hamilton's equations
+$\dot q^i = \partial H/\partial p_i$, $\dot p_i = -\partial H/\partial q^i$.
+
+\begin{proposition}[Symplecticity of the drift]
+\label{prop:symplectic}
+$\Lie_{X_H}\omega_0 = 0$. Consequently the flow $\Phi_t^{X_H}$ satisfies
+$(\Phi_t^{X_H})^{*}\omega_0 = \omega_0$, and the Liouville volume
+$\Lambda \coloneqq \tfrac{1}{n!}\,\omega_0^{\wedge n}$ is preserved:
+$\dive_\Lambda X_H = 0$.
+\end{proposition}
+
+\begin{proof}
+By Cartan's magic formula
+$\Lie_{X_H}\omega_0 = d\,i_{X_H}\omega_0 + i_{X_H}\,d\omega_0$. The second term
+vanishes since $d\omega_0 = -d^2\theta_0 = 0$; the first vanishes since
+$i_{X_H}\omega_0 = dH$ is exact. Then
+$\Lie_{X_H}\Lambda = \tfrac{1}{(n-1)!}(\Lie_{X_H}\omega_0)\wedge\omega_0^{\wedge(n-1)} = 0$.
+\end{proof}
+
+\subsection{Where the controls enter}
+
+For $\beta \in T^{*}_qQ$ define the \emph{vertical lift}
+$\ver_\alpha(\beta) = \frac{d}{d\varepsilon}\big|_{\varepsilon=0}(\alpha + \varepsilon\beta)
+\in T_\alpha(\Tstar)$; in coordinates $\ver(\beta) = \beta_i\,\partial/\partial p_i$.
+A direct computation from \eqref{eq:omega0} gives
+\begin{equation}
+  i_{\ver(\beta)}\omega_0 \;=\; -\pi^{*}\beta ,
+  \label{eq:vertlift}
+\end{equation}
+so $\ver(\beta)$ is locally Hamiltonian if and only if $\beta$ is closed. The
+controlled vector field on $\Tstar$ is
+\begin{equation}
+  X_\Sigma \;=\; X_H \;+\; \sum_{a=1}^{m} u^a\,\ver\!\left(F^a\right).
+  \label{eq:Xsigma}
+\end{equation}
+
+\begin{remark}[The precise sense of ``the uncontrolled dynamics respect $\omega_0$'']
+\label{rem:sense}
+By Proposition~\ref{prop:symplectic}, $u \equiv 0$ gives a symplectic --- indeed
+Hamiltonian --- flow. By \eqref{eq:vertlift}, an applied force $\beta$ keeps the
+flow symplectic if and only if $\pi^{*}\beta$ is closed, i.e.\ iff the force is
+locally a potential force \cite[\S4.4.4]{BL04}. \emph{Every} dissipative or
+velocity-dependent feedback therefore breaks $\omega_0$. Section~\ref{sec:obstruction}
+shows this is not an accident of the design but a hard requirement.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The obstruction: symplectic \texorpdfstring{$\Rightarrow$}{=>} not contracting}
+\label{sec:obstruction}
+
+The following makes precise why the design problem cannot be posed as a
+structure-preserving one.
+
+\begin{lemma}[Divergence bound]
+\label{lem:div}
+If $(\mathcal{U},X,G,\lambda)$ is a contracting system on a manifold $M$ of
+dimension $N$, then $\dive_G X \le -N\lambda$ on $\mathcal{U}$, where $\dive_G$ is
+the divergence with respect to the Riemannian volume of $G$.
+\end{lemma}
+
+\begin{proof}
+Write $S \coloneqq \operatorname{sym}\big(\overset{G}{\nabla}X\big)$ for the
+$G$-symmetric part of the $(1,1)$-tensor $\overset{G}{\nabla}X$. Condition
+\eqref{eq:contraction} says exactly that $S \preceq -\lambda\,\id$. Taking traces
+and using
+\[
+  \tr\big(\overset{G}{\nabla}X\big) = \tr(S) = \dive_G X
+\]
+gives the claim.
+\end{proof}
+
+\begin{proposition}[No symplectic vector field is contracting]
+\label{prop:obstruction}
+Let $(M,\omega)$ be a symplectic manifold of dimension $N = 2n \ge 2$, and let
+$X \in \Gsec{TM}$ be symplectic, $\Lie_X\omega = 0$. Then there is no Riemannian
+metric $G$, no $\lambda>0$ and no nonempty open $\mathcal{U} \subseteq M$ with
+$\overline{\mathcal{U}}$ compact, forward $X$-invariant, and $X$ forward complete
+on $\mathcal{U}$, such that $(\mathcal{U},X,G,\lambda)$ is contracting.
+\end{proposition}
+
+\begin{proof}
+Write $\mu_G = f\,\Lambda$ with $\Lambda = \omega^{\wedge n}/n!$ and
+$f \in \Cinf{M}$, $f>0$. Since $\Lie_X\Lambda = 0$ we have
+$\dive_G X = \dive_\Lambda X + \Lie_X(\ln f) = \Lie_X(\ln f)$.
+By Lemma~\ref{lem:div}, $\Lie_X(\ln f) \le -2n\lambda$ on $\mathcal{U}$, so along
+any trajectory $t \mapsto \Phi_t(x)$ staying in $\mathcal{U}$,
+\[
+  \ln f(\Phi_t(x)) \;\le\; \ln f(x) - 2n\lambda t \;\xrightarrow[t\to\infty]{}\; -\infty.
+\]
+But $f$ attains a positive minimum on the compact set $\overline{\mathcal{U}}$,
+so $\ln f$ is bounded below on $\mathcal{U}$ --- a contradiction.
+\end{proof}
+
+\begin{corollary}[Spectral form of the obstruction]
+\label{cor:spectral}
+Suppose in addition the hypotheses of \cite[Prop.~2.5(i)]{SB13} hold, so that $X$
+has a fixed point $\bar x \in \mathcal{U}$. Evaluating \eqref{eq:contraction} at
+$\bar x$, where $\overset{G}{\nabla}_{w}X = DX(\bar x)\cdot w$ is connection
+independent, gives
+$A^{\!\top}P + PA \preceq -2\lambda P$ with $A = DX(\bar x)$ and
+$P = G(\bar x) \succ 0$; hence $A$ is Hurwitz. But a symplectic vector field is
+locally Hamiltonian, so $A$ is a Hamiltonian matrix with respect to
+$\omega(\bar x)$ and $\spec(A)$ is symmetric under $z \mapsto -z$. For $n \ge 1$
+the two are incompatible.
+\end{corollary}
+
+\begin{remark}[Design consequence]
+\label{rem:design}
+Contraction is \emph{not} a structure-preserving property: it forces
+$\Lie_{X_{\mathrm{cl}}}\omega_0 \ne 0$ and strict volume dissipation. The design
+question is therefore not \emph{whether} to break $\omega_0$ but \emph{how}, and
+--- equally important --- which metric $G$ on $\Tstar$ can certify the result.
+Section~\ref{sec:sasaki} shows the obvious candidates cannot.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The \texorpdfstring{$\nabla$}{nabla}-splitting and the covariant variational equations}
+\label{sec:splitting}
+
+\subsection{Splitting of \texorpdfstring{$T(\Tstar)$}{T(T*Q)}}
+
+Let $K_\alpha : T_\alpha(\Tstar) \to T^{*}_qQ$ be the connection map of $\nabla$:
+if $s \mapsto \alpha(s)$ is a curve in $\Tstar$ over $s \mapsto q(s)$, then
+$K(\alpha'(0)) = \tfrac{D}{ds}\alpha\big|_{0}$, the covariant derivative of the
+covector field $\alpha$ along $q$. The pair
+\begin{equation}
+  T_\alpha(\Tstar) \;\ni\; w \;\longmapsto\;
+  \big(u,\beta\big) \coloneqq \big(T_\alpha\pi(w),\, K_\alpha(w)\big)
+  \;\in\; T_qQ \times T^{*}_qQ
+  \label{eq:splitting}
+\end{equation}
+is a linear isomorphism, splitting $T_\alpha(\Tstar) = H_\alpha \oplus V_\alpha$
+into horizontal and vertical subspaces. Throughout we also write
+$\xi \coloneqq \Gsharp\beta \in T_qQ$, so that
+$\dpair{\beta}{u} = \ipG{\xi}{u}$.
+
+\begin{lemma}[Canonical objects in the splitting]
+\label{lem:splitting}
+With $\nabla$ torsion-free and $w_j \leftrightarrow (u_j,\beta_j)$,
+\begin{align}
+  \theta_0(w) &= \dpair{\alpha}{u}, \label{eq:theta-split}\\
+  \omega_0(w_1,w_2) &= \dpair{\beta_2}{u_1} - \dpair{\beta_1}{u_2},
+     \label{eq:omega-split}\\
+  X_H(\alpha) &= \hor_\alpha\!\big(\Gsharp\alpha\big) \;-\; \ver_\alpha\!\big(dV(q)\big).
+     \label{eq:XH-split}
+\end{align}
+Equivalently, with $v \coloneqq \Gsharp\alpha$, the uncontrolled dynamics read
+\begin{equation}
+  \dot q = v = \Gsharp\alpha,
+  \qquad
+  \Dt \alpha = -dV(q),
+  \label{eq:ham-covariant}
+\end{equation}
+and the controlled dynamics \eqref{eq:Xsigma} read
+$\Dt\alpha = -dV(q) + \sum_a u^a F^a(q)$.
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+\eqref{eq:theta-split} is the definition of $\theta_0$. For
+\eqref{eq:omega-split}, evaluate at a point in normal coordinates for $\nabla$
+(all $\Gamma^k_{ij}$ vanish there), where the splitting \eqref{eq:splitting}
+coincides with the coordinate splitting; then
+$(dq^i\wedge dp_i)(w_1,w_2) = u_1^i(\beta_2)_i - u_2^i(\beta_1)_i$. Torsion-freeness
+is what guarantees no extra term appears at points where $\Gamma \ne 0$.
+For \eqref{eq:ham-covariant}: the horizontal component is
+$\dot q^i = \Gm^{ij}p_j$ by \eqref{eq:H}, and the vertical component is
+\[
+  \big(\Dt\alpha\big)_i
+  = \dot p_i - \Gamma^k_{ij}\dot q^{\,j} p_k
+  = -\frac{\partial V}{\partial q^i}
+    - \tfrac12\frac{\partial \Gm^{jk}}{\partial q^i}p_jp_k
+    - \Gamma^k_{ij}\Gm^{j\ell}p_\ell p_k .
+\]
+Metric compatibility $\nabla\Gm^{-1}=0$ gives
+$\partial_i\Gm^{jk} = -\Gamma^j_{i\ell}\Gm^{\ell k} - \Gamma^k_{i\ell}\Gm^{j\ell}$,
+and substituting cancels the last two terms identically, leaving
+$\Dt\alpha = -dV$. Applying $\Gsharp$ (which is $\nabla$-parallel) recovers
+\eqref{eq:accs} with $u\equiv0$.
+\end{proof}
+
+\begin{remark}[The symmetric partner of $\omega_0$]
+\label{rem:partner}
+By \eqref{eq:omega-split}, the canonical pairing appears \emph{antisymmetrized}
+in $\omega_0$. Its \emph{symmetrization}
+\begin{equation}
+  \Pi(w_1,w_2) \coloneqq \dpair{\beta_2}{u_1} + \dpair{\beta_1}{u_2}
+  \label{eq:Pi}
+\end{equation}
+is a metric-independent symmetric bilinear form on $T_\alpha(\Tstar)$ of signature
+$(n,n)$. It is exactly the ingredient the contraction metric must contain
+(Theorem~\ref{thm:main}); Proposition~\ref{prop:sasaki} shows a metric without it
+cannot work.
+\end{remark}
+
+\subsection{The variational (Jacobi) system}
+
+Let $(s,t)\mapsto \alpha(s,t)$ be a smooth family of trajectories of the closed
+loop, with base curves $q(s,t)$ and $v = \partial_t q = \Gsharp\alpha$. Set
+\begin{equation}
+  u \coloneqq \partial_s q,
+  \qquad
+  \beta \coloneqq \tfrac{D}{ds}\alpha,
+  \qquad
+  \xi \coloneqq \Gsharp\beta .
+\end{equation}
+Then $(u,\beta)$ is precisely the splitting \eqref{eq:splitting} of the variation
+field $S(s,t) = \tfrac{d}{ds}\Phi_t(\gamma(s))$ appearing in the proof of
+\cite[Thm.~2.3]{SB13}.
+
+\begin{proposition}[Covariant variational equations]
+\label{prop:variational}
+For the controlled dynamics $\Dt\alpha = -dV + \sum_a u^aF^a$,
+\begin{align}
+  \Dt u &= \xi, \label{eq:var1}\\
+  \Dt \xi &= -\Hess^{\sharp}V(u) \;-\; \Jac_v(u) \;+\; \delta_u,
+    \label{eq:var2}
+\end{align}
+where $\Jac_v \in \Gsec{T^1_1Q}$ is the \emph{Jacobi} (tidal) operator
+\begin{equation}
+  \Jac_v(u) \coloneqq R(u,v)v ,
+  \qquad
+  \ipG{\Jac_v u}{u} = \Sect(u,v)\left(\normG{u}^2\normG{v}^2 - \ipG{u}{v}^2\right),
+  \label{eq:jacobi-op}
+\end{equation}
+which is $\Gm$-symmetric, and
+$\delta_u = \Gsharp\tfrac{D}{ds}\!\left(\sum_a u^aF^a\right)$ is the variation of
+the control force.
+\end{proposition}
+
+\begin{proof}
+\eqref{eq:var1}: since $\nabla$ is torsion-free,
+$\tfrac{D}{ds}\partial_t q = \tfrac{D}{dt}\partial_s q$, and since
+$\nabla\Gsharp = 0$,
+$\tfrac{D}{ds}(\Gsharp\alpha) = \Gsharp\tfrac{D}{ds}\alpha = \Gsharp\beta = \xi$.
+Hence $\Dt u = \xi$.
+
+\eqref{eq:var2}: for any vector field $W$ along the map $(s,t)\mapsto q(s,t)$,
+differentiating the function $\dpair{\alpha}{W}$ twice and using
+$(\tfrac{D}{ds}\tfrac{D}{dt} - \tfrac{D}{dt}\tfrac{D}{ds})W = R(u,v)W$ gives
+\[
+  \dpair{\left(\tfrac{D}{ds}\tfrac{D}{dt} - \tfrac{D}{dt}\tfrac{D}{ds}\right)\alpha}{W}
+  \;=\; -\dpair{\alpha}{R(u,v)W}.
+\]
+Therefore
+$\Dt\beta = \tfrac{D}{ds}\!\left(\Dt\alpha\right) + \alpha\circ R(u,v)$.
+Now $\tfrac{D}{ds}(-dV) = -\nabla_u dV = -\Gflat\big(\Hess^{\sharp}V(u)\big)$, and
+for any $W$,
+\[
+  \dpair{\alpha\circ R(u,v)}{W} = \ipG{R(u,v)W}{v} = -\ipG{R(u,v)v}{W},
+\]
+so $\Gsharp\big(\alpha\circ R(u,v)\big) = -R(u,v)v = -\Jac_v(u)$. Applying
+$\Gsharp$ throughout yields \eqref{eq:var2}. The expression \eqref{eq:jacobi-op}
+for $\ipG{\Jac_vu}{u}$ is the definition of sectional curvature; $\Gm$-symmetry of
+$\Jac_v$ follows from the pair symmetry $\ipG{R(X,Y)Z}{W} = \ipG{R(Z,W)X}{Y}$.
+\end{proof}
+
+\begin{remark}[Consistency check]
+With $V \equiv 0$ and $\delta_u \equiv 0$, \eqref{eq:var1}--\eqref{eq:var2} become
+$\tfrac{D^2u}{dt^2} + R(u,v)v = 0$, the Jacobi equation of geodesic deviation, as
+it must: the uncontrolled unforced dynamics of $\Sigma$ are the geodesic spray of
+$\Gm$.
+\end{remark}
+
+\begin{remark}[Why this suffices for \eqref{eq:contraction}]
+\label{rem:equivalence}
+Equation~(8) in the proof of \cite[Thm.~2.3]{SB13} establishes
+$\tfrac{d}{dt}\norm{S(s,t)}_G^2 = 2\ip{\overset{G}{\nabla}_{S}X}{S}_G$.
+Hence \eqref{eq:contraction} holds on $\mathcal{U}$ if and only if
+$\tfrac{d}{dt}\norm{w}_G^2 \le -2\lambda\norm{w}_G^2$ for every variation field
+$w$ along every trajectory in $\mathcal{U}$. This is what we verify below, and it
+spares us computing the Levi-Civita connection of $G$ on the $2n$-manifold
+$\Tstar$ explicitly.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Block-diagonal metrics cannot certify contraction}
+\label{sec:sasaki}
+
+The first candidate metric on $\Tstar$ is the Sasaki-type lift: horizontal block
+$\Gm$, vertical block $\Gm^{-1}$, no cross term. More generally consider any
+metric that is block diagonal and fibre-independent in the splitting
+\eqref{eq:splitting}.
+
+\begin{proposition}[Obstruction to block-diagonal certificates]
+\label{prop:sasaki}
+Let $A,C \in \Gsec{T^1_1Q}$ be $\Gm$-symmetric and positive-definite, and define
+the Riemannian metric on $\Tstar$
+\[
+  G_\alpha(w,w) = \ipG{A(q)u}{u} + \ipG{C(q)\xi}{\xi},
+  \qquad w \leftrightarrow (u,\xi).
+\]
+Suppose $\mathcal{W}\subseteq\Tstar$ contains a pair $\pm\alpha_q$ with
+$\alpha_q \ne 0$. Then $G$ cannot satisfy \eqref{eq:contraction} on $\mathcal{W}$
+for the closed loop, \emph{for any feedback whatsoever}.
+\end{proposition}
+
+\begin{proof}
+Differentiating along a trajectory with velocity $v$, using
+$\tfrac{d}{dt}\ipG{Au}{u} = \ipG{(\nabla_vA)u}{u} + 2\ipG{A\,\Dt u}{u}$,
+\[
+  \tfrac12\tfrac{d}{dt}G(w,w)
+  = \tfrac12\ipG{(\nabla_vA)u}{u} + \ipG{A\xi}{u}
+    + \tfrac12\ipG{(\nabla_vC)\xi}{\xi} + \ipG{C\,\Dt\xi}{\xi},
+\]
+where we used $\Dt u = \xi$ from \eqref{eq:var1}. Since $(u,\xi)$ ranges over all
+of $T_qQ\times T_qQ$, evaluate at a variation with $\xi = 0$ and $u \ne 0$: all
+terms containing $\xi$ drop, \emph{including the entire dependence on
+$\Dt\xi$ and therefore on the feedback}, leaving
+\[
+  \tfrac12\tfrac{d}{dt}G(w,w)\Big|_{\xi=0} = \tfrac12\ipG{(\nabla_vA)u}{u}.
+\]
+Condition \eqref{eq:contraction} would require
+$\ipG{(\nabla_vA)u}{u} \le -2\lambda\ipG{Au}{u}$. Applying this at both
+$\alpha_q$ and $-\alpha_q$ (i.e.\ at $v$ and $-v$) and using linearity of
+$\nabla_vA$ in $v$ gives simultaneously
+$\ipG{(\nabla_vA)u}{u} \le -2\lambda\ipG{Au}{u}$ and
+$\ipG{(\nabla_vA)u}{u} \ge 2\lambda\ipG{Au}{u}$, whence
+$\ipG{Au}{u}\le 0$ --- contradicting $A \succ 0$, $u\ne0$, $\lambda>0$.
+\end{proof}
+
+\begin{corollary}
+The Sasaki metric ($A = \id$, $C = \id$, both $\nabla$-parallel) never certifies
+contraction. Neither does the total-energy metric on $\Tstar$.
+\end{corollary}
+
+This is the intrinsic counterpart of the familiar linear fact: for
+$M\ddot q + D\dot q + Kq = 0$ with $P = \operatorname{diag}(K, M^{-1})$ (the energy
+metric), $A^{\!\top}P + PA = \operatorname{diag}(0, -2M^{-1}DM^{-1})$ is only
+negative \emph{semi}definite. It is also exactly why Example~1 of \cite{SB13}
+carries the cross term $b\varepsilon\,dx\otimes dy$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Contraction metrics with a base--fibre cross term}
+\label{sec:main}
+
+\subsection{The metric}
+
+\begin{definition}[Skewed lift]
+\label{def:metric}
+Let $a,b,c \in \Rm$ with $a,c>0$ and $ac > b^2$. Define $G$ on $\Tstar$ by
+\begin{equation}
+  G_\alpha(w,w) \;=\; a\,\normG{u}^2 \;+\; 2b\,\ipG{u}{\xi} \;+\; c\,\normG{\xi}^2,
+  \qquad w \leftrightarrow (u,\xi = \Gsharp\beta).
+  \label{eq:G}
+\end{equation}
+\end{definition}
+
+$G$ is a genuine Riemannian metric on the $2n$-manifold $\Tstar$: the horizontal
+block is $a\,\pi^{*}\Gm$, the vertical block is $c\,\Gm^{-1}$, and the cross term
+is $b\,\Pi$ with $\Pi$ the canonical symmetric form \eqref{eq:Pi} of
+Remark~\ref{rem:partner}. Metrics of this shape belong to the class called
+\emph{$g$-natural} in the Riemannian-geometry literature (here with constant,
+fibre-independent coefficients).
+
+\subsection{The feedback}
+
+\begin{assumption}[Full actuation]
+\label{ass:actuation}
+$\operatorname{span}_{\Rm}\{F^1(q),\dots,F^m(q)\} = T^{*}_qQ$ for each $q$ in the
+region of interest.
+\end{assumption}
+
+Under Assumption~\ref{ass:actuation} we may realise any desired control force. Take
+the potential-shaping-plus-damping law of \cite[\S10.4, \S11.1]{BL04}:
+\begin{equation}
+  F_{\mathrm{ctrl}}(\alpha) \;=\; -\,d\varphi(q) \;-\; \Gflat\big(\Damp(q)\,\Gsharp\alpha\big),
+  \label{eq:feedback}
+\end{equation}
+with $\varphi \in \Cinf{Q}$ the shaping potential and $\Damp \in \Gsec{T^1_1Q}$
+$\Gm$-symmetric and positive-definite. The closed loop is
+\begin{equation}
+  \dot q = v = \Gsharp\alpha,
+  \qquad
+  \Dt\alpha = -\,d(V+\varphi)(q) - \Gflat(\Damp v),
+  \qquad\text{i.e.}\qquad
+  \nabla_v v = -\grad(V+\varphi) - \Damp v.
+  \label{eq:closedloop}
+\end{equation}
+By Remark~\ref{rem:sense} this is not symplectic --- as
+Proposition~\ref{prop:obstruction} demands.
+
+\begin{assumption}[Parallel damping]
+\label{ass:damping}
+$\nabla\Damp = 0$. This holds in particular for $\Damp = d\,\id$ with
+$d \in \Rm_{>0}$.
+\end{assumption}
+
+Under Assumptions~\ref{ass:actuation}--\ref{ass:damping}, substituting
+\eqref{eq:closedloop} into Proposition~\ref{prop:variational} gives
+$\delta_u = -\Hess^{\sharp}\varphi(u) - \Damp\xi$, hence the closed-loop
+variational system
+\begin{equation}
+  \boxed{\quad
+  \Dt u = \xi,
+  \qquad
+  \Dt \xi = -\,\Stiff_\alpha(u) \;-\; \Damp\,\xi,
+  \qquad
+  \Stiff_\alpha \coloneqq \Hess^{\sharp}(V+\varphi)(q) + \Jac_v .
+  \quad}
+  \label{eq:cl-variational}
+\end{equation}
+$\Stiff_\alpha$ is $\Gm$-symmetric; we call it the \emph{curvature-corrected
+shaped stiffness}. Note it depends on the full state $\alpha$, not just on $q$.
+
+\subsection{Main result}
+
+\begin{theorem}[Contraction certificate]
+\label{thm:main}
+Let Assumptions~\ref{ass:actuation}--\ref{ass:damping} hold with
+$\Damp = d\,\id$, $d>0$. Let $\mathcal{W}\subseteq\Tstar$ be open, forward
+invariant for \eqref{eq:closedloop}, $K$-reachable in the sense of
+\cite[Def.~2.2]{SB13}, with the closed-loop field forward complete on
+$\mathcal{W}$. Suppose there exist $0 < \mu \le \sigma$ with
+\begin{equation}
+  \mu\,\normG{u}^2 \;\le\; \ipG{\Stiff_\alpha u}{u}
+  \quad\text{and}\quad
+  \normG{\Stiff_\alpha u} \;\le\; \sigma\,\normG{u}
+  \qquad \forall\,\alpha\in\mathcal{W},\ \forall\,u\in T_qQ,
+  \label{eq:mu-sigma}
+\end{equation}
+i.e.\ $\spec(\Stiff_\alpha)\subset[\mu,\sigma]$ uniformly on $\mathcal{W}$. If
+\begin{equation}
+  \boxed{\;\; d \;>\; \frac{\sigma-\mu}{2\sqrt{\mu}} \;\;}
+  \label{eq:main-condition}
+\end{equation}
+then $G$ of Definition~\ref{def:metric} with
+\begin{equation}
+  c = 1, \qquad b = \tfrac{d}{2}, \qquad a = \tfrac{d^2}{2} + \tfrac{\mu+\sigma}{2}
+  \label{eq:gains}
+\end{equation}
+makes $(\mathcal{W}, X_{\mathrm{cl}}, G, \lambda)$ a contracting system, with
+\begin{equation}
+  \lambda \;=\; \frac{\lambda_{\min}(\mathcal{Q})}{\lambda_{\max}(\mathcal{P})},
+  \qquad
+  \mathcal{Q} = \begin{bmatrix} \tfrac{\mu d}{2} & -\tfrac{\kappa}{2}\\[2pt]
+                                -\tfrac{\kappa}{2} & \tfrac{d}{2}\end{bmatrix},
+  \quad
+  \mathcal{P} = \begin{bmatrix} a & b\\ b & c\end{bmatrix},
+  \quad
+  \kappa \le \tfrac{\sigma-\mu}{2},
+  \label{eq:rate}
+\end{equation}
+and consequently, by \cite[Thm.~2.3]{SB13},
+\[
+  d_G\big(\Phi_t(\alpha_0),\Phi_t(\alpha_1)\big) \;\le\;
+  K e^{-\lambda t}\, d_G(\alpha_0,\alpha_1),
+  \qquad \forall\,\alpha_0,\alpha_1\in\mathcal{W},\ t\ge0 .
+\]
+\end{theorem}
+
+\begin{proof}
+By Remark~\ref{rem:equivalence} it suffices to bound
+$\tfrac{d}{dt}G(w,w)$ along \eqref{eq:cl-variational}. Since $a,b,c$ are constants
+and $\Gm$ is $\nabla$-parallel,
+\begin{align*}
+  \tfrac12\tfrac{d}{dt}G(w,w)
+   &= a\ipG{\Dt u}{u} + b\big(\ipG{\Dt u}{\xi} + \ipG{u}{\Dt \xi}\big)
+      + c\ipG{\Dt \xi}{\xi}\\
+   &= a\ipG{\xi}{u} + b\normG{\xi}^2
+      + b\ipG{u}{-\Stiff u - \Damp\xi}
+      + c\ipG{-\Stiff u - \Damp\xi}{\xi}\\
+   &= -\,b\ipG{\Stiff u}{u} \;-\; c\ipG{\Damp\xi}{\xi} \;+\; b\normG{\xi}^2
+      \;+\; \ipG{\big(a\,\id - b\Damp - c\Stiff\big)\xi}{u},
+\end{align*}
+where $\Gm$-symmetry of $\Damp$ and $\Stiff$ was used to collect the cross terms.
+With $\Damp = d\,\id$ and $\kappa \coloneqq
+\sup_{\mathcal{W}}\norm{a\,\id - bd\,\id - c\,\Stiff_\alpha}$, the bounds
+\eqref{eq:mu-sigma} give
+\[
+  \tfrac12\tfrac{d}{dt}G(w,w)
+  \;\le\; -\,b\mu\normG{u}^2 - (cd-b)\normG{\xi}^2 + \kappa\normG{u}\normG{\xi}
+  \;=\; -\,z^{\!\top}\mathcal{Q}\,z,
+  \qquad z = \begin{bmatrix}\normG{u}\\ \normG{\xi}\end{bmatrix},
+\]
+with $\mathcal{Q} = \begin{bsmallmatrix} b\mu & -\kappa/2\\ -\kappa/2 & cd-b\end{bsmallmatrix}$.
+Choosing $c=1$ and $a = bd + \tfrac{\mu+\sigma}{2}$ centres the residual operator,
+$a\,\id - bd\,\id - \Stiff = \tfrac{\mu+\sigma}{2}\id - \Stiff$, so
+$\kappa \le \tfrac{\sigma-\mu}{2}$ by \eqref{eq:mu-sigma}. Then
+$\mathcal{Q}\succ0$ iff $b < d$ and $b\mu(d-b) > \kappa^2/4$. The left side is
+maximised at $b = d/2$, giving $\mu d^2/4 > (\sigma-\mu)^2/16$, i.e.\
+\eqref{eq:main-condition}. With $b=d/2$ we get
+$a = d^2/2 + (\mu+\sigma)/2 > d^2/4 = b^2 = b^2/c$, so $G$ is positive-definite as
+required in Definition~\ref{def:metric}. Finally
+$G(w,w) = z^{\!\top}\mathcal{P}z \le \lambda_{\max}(\mathcal{P})\norm{z}^2$ and
+$z^{\!\top}\mathcal{Q}z \ge \lambda_{\min}(\mathcal{Q})\norm{z}^2$, so
+$\tfrac{d}{dt}G(w,w) \le -2\lambda\,G(w,w)$ with $\lambda$ as in \eqref{eq:rate}.
+The stated bound is then \cite[Thm.~2.3]{SB13}.
+\end{proof}
+
+\begin{remark}[Isotropic case: any damping works]
+\label{rem:isotropic}
+If $\Stiff_\alpha = \mu\,\id$ on $\mathcal{W}$ then $\sigma = \mu$,
+$\kappa = 0$, and \eqref{eq:main-condition} reads $d > 0$: \emph{arbitrarily small
+damping suffices}, provided the metric carries the cross term $b = d/2$. This is
+the intrinsic version of Example~1 of \cite{SB13}, where the damped oscillator is
+shown contracting for every $b>0$ with a metric containing
+$b\varepsilon\,dx\otimes dy$. (The coefficients differ from theirs --- contraction
+metrics are very far from unique --- but the essential feature, a nonzero cross
+term, is the same.)
+\end{remark}
+
+\begin{remark}[Non-parallel damping]
+Dropping Assumption~\ref{ass:damping}, \eqref{eq:cl-variational} acquires the
+extra term $\mathcal{N}_v(u) \coloneqq (\nabla_u\Damp)v$, which is not
+$\Gm$-symmetric. Splitting $\mathcal{N}_v$ into symmetric and skew parts, the
+symmetric part is absorbed into $\Stiff_\alpha$ (revising $\mu,\sigma$) and the
+skew part contributes only to the cross term, i.e.\ to $\kappa$. The structure of
+Theorem~\ref{thm:main} is unchanged; only the constants degrade.
+\end{remark}
+
+\begin{remark}[State-dependent coefficients]
+Allowing $a,b,c$ in \eqref{eq:G} to be functions on $Q$, or $\Gm$-symmetric tensor
+fields $A,B,C$, adds $\tfrac12\ipG{(\nabla_vA)u}{u}$,
+$\ipG{(\nabla_vB)u}{\xi}$, $\tfrac12\ipG{(\nabla_vC)\xi}{\xi}$ to the derivative.
+Note these are derivatives along the \emph{trajectory} velocity $v$, not along the
+variation --- a consequence of doing the whole computation covariantly. This extra
+freedom is what one would need to handle strongly anisotropic $\Stiff_\alpha$
+(where the constant-coefficient bound $\kappa \le (\sigma-\mu)/2$ is
+conservative), at the cost of a coupled PDE-like condition on $A,B,C$.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reading the condition: curvature, velocity, and the size of \texorpdfstring{$\mathcal{W}$}{W}}
+\label{sec:reading}
+
+By \eqref{eq:cl-variational} and \eqref{eq:jacobi-op},
+\begin{equation}
+  \ipG{\Stiff_\alpha u}{u}
+  \;=\; \Hess(V+\varphi)(u,u)
+  \;+\; \Sect(u,v)\left(\normG{u}^2\normG{v}^2 - \ipG{u}{v}^2\right).
+  \label{eq:stiffness-decomp}
+\end{equation}
+Three consequences.
+
+\paragraph{Positive curvature helps.} Where $\Sect \ge 0$, the curvature term
+\emph{adds} to the effective stiffness. This is the geodesic-deviation picture:
+on a positively curved manifold neighbouring geodesics focus, and the focusing
+does part of the controller's work. On a Lie group with a bi-invariant metric,
+$\Sect(X,Y) = \tfrac14\normG{[X,Y]}^2 \ge 0$ for $\Gm$-orthonormal $X,Y$; e.g.\
+a rigid body with inertia tensor $\mathbb{J} = j\,\id$ on $SO(3)$.
+
+\paragraph{Negative curvature bounds $\mathcal{W}$ in velocity.} If
+$\Sect \ge \Sect_{-}$ with $\Sect_{-} < 0$, then from
+\eqref{eq:stiffness-decomp}
+\[
+  \mu \;\ge\; \lambda_{\min}\!\big(\Hess^{\sharp}(V+\varphi)\big)
+              \;-\; |\Sect_{-}|\,\sup_{\mathcal{W}}\normG{v}^2 .
+\]
+Positivity of $\mu$ --- which \eqref{eq:main-condition} requires --- therefore
+forces $\sup_{\mathcal{W}}\normG{v}^2 <
+\lambda_{\min}(\Hess^{\sharp}(V+\varphi))/|\Sect_{-}|$. Crucially,
+\emph{damping cannot repair this}: $\Damp$ enters only the $\xi$-block of
+\eqref{eq:cl-variational}, whereas $\mu$ lives in the $u$-block. On a negatively
+curved configuration manifold, contraction regions are intrinsically
+velocity-bounded, and enlarging them requires stiffer potential shaping, not more
+damping. For a rigid body on $SO(3)$ with an asymmetric inertia tensor the metric
+$\Gm$ is left- but not bi-invariant, and sectional curvatures of some planes are
+negative --- so this case is live, not academic.
+
+\paragraph{Topology bounds $\mathcal{W}$ too.} \cite[\S2]{SB13} notes, following
+Bhat--Bernstein, that a contraction region is contractible. Since $\Tstar$
+deformation-retracts onto $Q$, $\mathcal{W}$ can never be all of $\Tstar$ when $Q$
+is not contractible ($Q = S^2$, $SO(3)$, $\mathbb{T}^n$, \dots). Contraction-based
+designs on such $Q$ are unavoidably local, in the same way and for the same reason
+that smooth global stabilisation is \cite[\S10.5.7]{BL04}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Design recipe}
+\label{sec:recipe}
+
+\begin{enumerate}[leftmargin=1.9em,itemsep=3pt]
+\item Model $\Sigma = (Q,\Gm,V,\mathcal{F})$ as in \cite[Ch.~4]{BL04}; compute
+      $\nabla$ and $R$ for $\Gm$.
+\item Write the drift on $\Tstar$ via \eqref{eq:H}--\eqref{eq:omega0}; confirm
+      $\Lie_{X_H}\omega_0 = 0$ (Proposition~\ref{prop:symplectic}). This is the
+      structure the feedback must break.
+\item Verify Assumption~\ref{ass:actuation}. If it fails, this construction does
+      not apply --- see \S\ref{sec:limits}.
+\item Pick a shaping potential $\varphi$ with $\Hess^{\sharp}(V+\varphi) \succ 0$
+      on the region of interest and a unique critical point at the target
+      \cite[\S10.4, \S11.1.1]{BL04}.
+\item Choose a candidate velocity bound $\bar v$; compute
+      $\mu,\sigma$ for $\Stiff_\alpha = \Hess^{\sharp}(V+\varphi) + \Jac_v$ over
+      $\{\normG{v}\le\bar v\}$ using \eqref{eq:stiffness-decomp}. If $\mu \le 0$,
+      shrink $\bar v$ or stiffen $\varphi$.
+\item Choose $d > (\sigma-\mu)/(2\sqrt{\mu})$ and set
+      $(a,b,c)$ by \eqref{eq:gains}. The certificate is $G$ of
+      \eqref{eq:G}; the rate is \eqref{eq:rate}.
+\item Verify forward invariance and $K$-reachability of $\mathcal{W}$, e.g.\ by
+      taking $\mathcal{W}$ a sublevel set of the closed-loop energy
+      $\tfrac12\normG{v}^2 + (V+\varphi)$ contained in
+      $\{\normG{v}\le\bar v\}$; sublevel sets of a strict Lyapunov function are
+      forward invariant, and geodesic balls are $1$-reachable
+      \cite[Prop.~2.5(iii)]{SB13}.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Limitations and open directions}
+\label{sec:limits}
+
+\begin{itemize}[leftmargin=1.6em,itemsep=3pt]
+\item \textbf{Full actuation is used essentially.} Under-actuated $\Sigma$
+      cannot realise \eqref{eq:feedback}. The relevant structural theory is then
+      kinematic reduction and decoupling vector fields \cite[Ch.~8]{BL04}, and
+      contraction certificates in that setting are, as far as these notes go,
+      open. Note also that under-actuation is exactly where the symplectic
+      structure is hardest to break usefully: the reachable directions in which
+      $\omega_0$ can be destroyed are constrained by
+      $\operatorname{span}\{F^a\}$.
+\item \textbf{The conclusion of \cite{SB13} is not resolved.} That paper closes by
+      flagging as open ``finding succinct and meaningful conditions for a simple
+      mechanical system to exhibit contracting behavior.'' Theorem~\ref{thm:main}
+      gives one such condition \emph{for the closed loop under full actuation};
+      it says nothing about when an uncontrolled or under-actuated simple
+      mechanical system is contracting. Indeed
+      Proposition~\ref{prop:obstruction} shows that the uncontrolled system never
+      is.
+\item \textbf{Conservatism.} The constant-coefficient bound
+      $\kappa \le (\sigma-\mu)/2$ is tight only when $\Stiff_\alpha$ is close to
+      isotropic. For strongly anisotropic inertia/curvature, tensor-valued
+      $A,B,C$ should be expected to give much larger $\mathcal{W}$.
+\item \textbf{Cut locus.} $d_G$ on $\Tstar$ is a genuine distance, but the
+      exponential bound is stated in $d_G$, not in any coordinate norm; converting
+      to a usable estimate requires control of the cut locus of $G$, which for a
+      $g$-natural metric is not determined by that of $\Gm$.
+\item \textbf{Alternative: keep the structure, change the notion.} If preserving
+      $\omega_0$ matters (variational integrators, energy methods), contraction is
+      the wrong target by Proposition~\ref{prop:obstruction}; one would instead
+      use relative equilibria and energy--momentum methods
+      \cite[\S6.3]{BL04}, or contraction only in a quotient / on a
+      symplectically reduced space.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Audit of claims}
+\label{sec:audit}
+
+Because it matters which statements here are quoted and which are constructed:
+
+\begin{itemize}[leftmargin=1.6em,itemsep=3pt]
+\item \emph{Quoted verbatim in substance from \cite{SB13}:} Definition 2.1
+      (contracting system), Definition 2.2 ($K$-reachability), Theorem 2.3 and
+      its equation (8), Proposition 2.5 (existence of a fixed point, Krasovski\u{\i}
+      function, incremental Lyapunov function, volume contraction), Example 1
+      (damped oscillator with cross-term metric), the remark that contraction
+      regions are contractible, and the open problem quoted in
+      \S\ref{sec:limits}.
+\item \emph{Quoted in substance from \cite{BL04}:} the affine connection control
+      system \eqref{eq:accs} (\S4.6.3), the kinetic-energy-as-metric construction
+      (\S4.2.3), potential forces (\S4.4.4), PD and potential shaping
+      (\S\S10.4, 11.1), kinematic reduction (Ch.~8), obstructions to smooth
+      stabilisation (\S10.5.7).
+\item \emph{Standard textbook differential geometry, stated without proof:}
+      Cartan's magic formula; the tautological one-form and $\omega_0 = -d\theta_0$;
+      the symmetries of $R$; the Jacobi equation; nonnegative sectional curvature
+      of bi-invariant metrics.
+\item \emph{Derived here and worth independent checking:} Lemma~\ref{lem:splitting}
+      \eqref{eq:omega-split}--\eqref{eq:ham-covariant};
+      Proposition~\ref{prop:variational} (in particular the sign of the curvature
+      term); Proposition~\ref{prop:obstruction} and Corollary~\ref{cor:spectral};
+      Proposition~\ref{prop:sasaki}; Theorem~\ref{thm:main} and the constant
+      \eqref{eq:main-condition}. The consistency checks available are: the
+      $V\equiv0$ reduction to the Jacobi equation, and the $\sigma=\mu$ reduction
+      of \eqref{eq:main-condition} to ``any $d>0$'', matching Example~1 of
+      \cite{SB13}.
+\item \emph{Attributed loosely:} the term ``$g$-natural metric'' is used in the
+      Riemannian-geometry sense (Kowalski--Sekizawa and successors); the precise
+      classification of that class is not used here, only the shape \eqref{eq:G}.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{thebibliography}{9}
+
+\bibitem{BL04}
+F.~Bullo and A.~D.~Lewis,
+\emph{Geometric Control of Mechanical Systems: Modeling, Analysis, and Design for
+Simple Mechanical Control Systems}, Texts in Applied Mathematics, vol.~49,
+Springer, New York--Heidelberg--Berlin, 2004. ISBN 0-387-22195-6.
+
+\bibitem{SB13}
+J.~W.~Simpson-Porco and F.~Bullo,
+\emph{Contraction Theory on Riemannian Manifolds}, Center for Control, Dynamical
+Systems, and Computation, UC Santa Barbara. Preprint submitted to
+\emph{Systems \& Control Letters}, June~5, 2013. (The version cited here is the
+uploaded preprint; equation and result numbers refer to it.)
+
+\bibitem{LS98}
+W.~Lohmiller and J.-J.~E.~Slotine,
+\emph{On contraction analysis for nonlinear systems},
+Automatica \textbf{34}(6):683--696, 1998.
+[Reference~{[1]} of \cite{SB13}.]
+
+\bibitem{LM97}
+A.~D.~Lewis and R.~M.~Murray,
+\emph{Configuration controllability of simple mechanical control systems},
+SIAM Journal on Control and Optimization, 1997.
+[Origin of the symmetric-product formalism used in \cite[Ch.~7--8]{BL04}.]
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,1060 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1.02in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage[expansion=false]{microtype}
+\usepackage{enumitem}
+\usepackage{array,booktabs}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,
+            urlcolor=blue!55!black]{hyperref}
+
+%%% notation, continuing Notes I and II
+\newcommand{\Gm}{\mathbb{G}}
+\newcommand{\Rm}{\mathbb{R}}
+\newcommand{\Jm}{\mathbb{J}}
+\newcommand{\Km}{\mathbb{K}}
+\newcommand{\Ig}{\mathbb{I}}
+\newcommand{\ip}[2]{\langle\!\langle #1 , #2 \rangle\!\rangle}
+\newcommand{\ipG}[2]{\langle\!\langle #1 , #2 \rangle\!\rangle_{\Gm}}
+\newcommand{\ipJ}[2]{\langle\!\langle #1 , #2 \rangle\!\rangle_{\Jm}}
+\newcommand{\dpair}[2]{\langle #1 ; #2 \rangle}
+\newcommand{\Gsharp}{\Gm^{\sharp}}
+\newcommand{\Gflat}{\Gm^{\flat}}
+\newcommand{\Hess}{\operatorname{Hess}}
+\newcommand{\grad}{\operatorname{grad}}
+\newcommand{\Jac}{\mathcal{R}}
+\newcommand{\Sect}{\mathcal{K}}
+\newcommand{\Damp}{\mathcal{D}}
+\newcommand{\Kgain}{\mathcal{K}}
+\newcommand{\Gsec}[1]{\Gamma^{\infty}(#1)}
+\newcommand{\Cinf}[1]{C^{\infty}(#1)}
+\newcommand{\id}{\mathrm{Id}}
+\newcommand{\Lie}{\mathcal{L}}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\normG}[1]{\lVert #1 \rVert_{\Gm}}
+\newcommand{\normJ}[1]{\lVert #1 \rVert_{\Jm}}
+\newcommand{\Dt}{\tfrac{D}{dt}}
+\newcommand{\sym}{\operatorname{sym}}
+\newcommand{\so}{\mathfrak{so}(3)}
+\newcommand{\se}{\mathfrak{se}(3)}
+\newcommand{\g}{\mathfrak{g}}
+\newcommand{\SO}{\mathrm{SO}(3)}
+\newcommand{\SE}{\mathrm{SE}(3)}
+\newcommand{\ad}{\operatorname{ad}}
+\newcommand{\adt}{\operatorname{ad}^{\top}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\Ome}{\Omega_{\!e}}
+\newcommand{\Omr}{\Omega_{\!r}}
+\newcommand{\eR}{e_{R}}
+\DeclareMathOperator{\spec}{spec}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator*{\esssup}{sup}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\title{\bfseries Contraction-Based Control on $\mathrm{SO}(3)$ and $\mathrm{SE}(3)$\\[3pt]
+\large Attitude control of a spacecraft, and trajectory tracking for a quadrotor}
+\date{}
+\author{}
+
+\begin{document}
+\maketitle
+\vspace{-2.4\baselineskip}
+
+\begin{abstract}
+\noindent
+Two worked designs in the framework of Notes~I and~II. For each system we
+(a)~derive the dynamics on $T^{*}Q$ in canonical Hamiltonian form, reduce by
+left translation to Lie--Poisson / Euler--Poincar\'e form, and identify the
+affine connection control system of \cite[\S4.6.3]{BL04}; (b)~define an explicit
+contraction metric and controller; (c)~prove contraction.
+
+The spacecraft on $\SO$ is fully actuated and admits a complete, unconditional
+result: the closed-loop tracking error system is exactly the shaped-and-damped
+system of Note~I, and Note~I's Theorem~6.4 applies with $\mu,\sigma$ computed here
+in closed form from $\Jm$, $\Km$ and the sublevel set. Two by-products:
+$\Hess^{\sharp}\varphi$ is isotropised by the gain choice
+$\Km = k\left(\tr(\Jm)I - 2\Jm\right)$, which is positive-definite \emph{exactly
+because} the principal moments of inertia satisfy the triangle inequality
+(Prop.~\ref{prop:isotropise}); and left-invariant metrics on $\SO$ have negative
+sectional curvature in some planes whenever the body is inertially asymmetric,
+so Note~I's velocity-bounded contraction region is a real constraint, not an
+artefact.
+
+The quadrotor on $\SE$ is under-actuated ($\rank = 4 < 6$), so Note~I's
+Theorem~6.4 does \emph{not} apply. We decompose into a flat translational
+subsystem --- which is isotropic and therefore contracting for \emph{every}
+positive damping gain --- and the attitude subsystem of Part~A, coupled in
+\emph{feedback}, not cascade. The correct tool is the small-gain lemma
+\cite[Lem.~3.2]{SB13}, and the resulting theorem is explicitly conditional on two
+interconnection gains that must be evaluated on the operating region.
+Section~\ref{sec:audit} separates what is proved from what is assumed.
+\end{abstract}
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conventions}
+\label{sec:conv}
+
+Notation follows \cite{BL04} and Notes~I--II. $\hat{\cdot}:\Rm^3\to\so$ is the hat
+map, $\hat x y = x\times y$, with inverse $(\cdot)^{\vee}$; $\sym(A)=\tfrac12(A+A^{\top})$.
+
+For a Lie group $G$ with algebra $\g$ and a left-invariant metric determined by
+$\Ig:\g\to\g^{*}$ symmetric positive-definite, we write
+$\ip{\xi}{\eta}_{\Ig} = \dpair{\Ig\xi}{\eta}$. Two adjoints are used:
+$\ad^{*}_{\xi}:\g^{*}\to\g^{*}$ is the algebraic coadjoint,
+$\dpair{\ad^{*}_{\xi}\mu}{\eta} = \dpair{\mu}{\ad_{\xi}\eta}$, and
+$\adt_{\xi} \coloneqq \Ig^{-1}\ad^{*}_{\xi}\Ig : \g\to\g$ is the \emph{metric}
+adjoint.
+
+\begin{lemma}[Levi-Civita connection of a left-invariant metric]
+\label{lem:LC}
+On left-invariant vector fields,
+\begin{equation}
+  \nabla_{\xi}\eta \;=\; \tfrac12\Big( [\xi,\eta] \;-\; \adt_{\xi}\eta \;-\; \adt_{\eta}\xi \Big)
+  \;\eqqcolon\; \Gamma(\xi,\eta),
+  \qquad\text{so}\qquad
+  \nabla_{\xi}\xi \;=\; -\adt_{\xi}\xi .
+  \label{eq:LC}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Left-invariant functions $\ip{\eta}{\zeta}$ are constant, so the Koszul formula
+reduces to
+\[
+  2\ip{\nabla_{\xi}\eta}{\zeta}
+  = \ip{[\xi,\eta]}{\zeta} - \ip{[\eta,\zeta]}{\xi} + \ip{[\zeta,\xi]}{\eta}.
+\]
+Now $\ip{[\eta,\zeta]}{\xi} = \ip{\zeta}{\adt_{\eta}\xi}$ and
+$\ip{[\zeta,\xi]}{\eta} = -\ip{\ad_{\xi}\zeta}{\eta} = -\ip{\zeta}{\adt_{\xi}\eta}$.
+\end{proof}
+
+For a curve with left-trivialised velocity $\xi(t)$ and any vector field $W(t)$
+along it, the covariant derivative is $\Dt W = \dot W + \Gamma(\xi,W)$, so
+\begin{equation}
+  \Dt \xi \;=\; \dot\xi \;-\; \Ig^{-1}\ad^{*}_{\xi}\big(\Ig\xi\big).
+  \label{eq:covaccel}
+\end{equation}
+
+\begin{lemma}[Left-trivialised canonical form]
+\label{lem:triv}
+Trivialise $T^{*}G \cong G\times\g^{*}$ by $\alpha_g \mapsto (g,\mu)$,
+$\mu = T^{*}_eL_g\alpha_g$, and represent tangent vectors as $(\eta,\nu)\in\g\times\g^{*}$.
+Then
+\begin{equation}
+  \omega_0\big((\eta_1,\nu_1),(\eta_2,\nu_2)\big)\Big|_{(g,\mu)}
+  \;=\; \dpair{\nu_2}{\eta_1} - \dpair{\nu_1}{\eta_2} \;+\; \dpair{\mu}{[\eta_1,\eta_2]} ,
+  \label{eq:omega-triv}
+\end{equation}
+and $i_{X_H}\omega_0 = dH$ with an applied body force $F\in\g^{*}$ gives
+\begin{equation}
+  \dot g \;=\; g\,\frac{\partial H}{\partial \mu},
+  \qquad
+  \dot\mu \;=\; \ad^{*}_{\partial H/\partial\mu}\,\mu \;-\; \mathbf{d}_gH \;+\; F ,
+  \label{eq:LiePoisson}
+\end{equation}
+where $\mathbf{d}_gH\in\g^{*}$ is the left-trivialised derivative in $g$.
+\end{lemma}
+
+\begin{proof}
+Matching the $\nu$- and $\eta$-components of
+$\omega_0((\eta_H,\nu_H),(\eta,\nu)) = \dpair{\mathbf{d}_gH}{\eta}+\dpair{\nu}{\partial H/\partial\mu}$
+gives $\eta_H = \partial H/\partial\mu$ and
+$\nu_H = \ad^{*}_{\eta_H}\mu - \mathbf{d}_gH$.
+\end{proof}
+
+\begin{remark}[Why the bracket term does not contradict Note~I]
+\label{rem:torsion}
+Note~I, Lemma~4.1 gives $\omega_0(w_1,w_2) = \dpair{\beta_2}{u_1}-\dpair{\beta_1}{u_2}$
+with \emph{no} correction term. There is no conflict: that splitting is induced by
+the Levi-Civita connection, which is torsion-free, whereas the left trivialisation
+\eqref{eq:omega-triv} is induced by the flat left-invariant connection
+$\nabla^{-}$, whose torsion is $T(\eta_1,\eta_2) = -[\eta_1,\eta_2]$. The extra
+term in \eqref{eq:omega-triv} \emph{is} that torsion, paired with $\mu$. Both
+splittings are used below --- \eqref{eq:omega-triv} for the reduction, the
+Levi-Civita one for the contraction metric --- and they must not be conflated.
+\end{remark}
+
+By \eqref{eq:covaccel} the forced Euler--Poincar\'e equation
+$\Ig\dot\xi = \ad^{*}_{\xi}\Ig\xi - \mathbf{d}_gV + F$ is equivalent to
+\begin{equation}
+  \Gflat\big(\nabla_{v}v\big) \;=\; -\,dV \;+\; F ,
+  \label{eq:accs}
+\end{equation}
+which is Note~I, eq.~(1): the affine connection control system.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part*{Part A. Spacecraft on $\SO$}
+\addcontentsline{toc}{section}{Part A. Spacecraft on $\SO$}
+\setcounter{section}{0}
+\renewcommand{\thesection}{A.\arabic{section}}
+\setcounter{theorem}{0}
+\renewcommand{\thetheorem}{A.\arabic{section}.\arabic{theorem}}
+
+\section{Dynamics}
+\label{sec:so3-dyn}
+
+\subsection{Configuration manifold and kinetic energy metric}
+
+$Q = \SO$, $\g = \so \cong \Rm^3$ via $\hat{\cdot}$, with
+$[\hat\Omega_1,\hat\Omega_2] = (\Omega_1\times\Omega_2)^{\wedge}$. The body
+angular velocity of $t\mapsto R(t)$ is $\Omega = (R^{\top}\dot R)^{\vee}$.
+
+The inertia tensor $\Jm=\Jm^{\top}\succ0$ (body frame) defines the
+\emph{left-invariant} kinetic energy metric \cite[\S5.3]{BL04}
+\begin{equation}
+  \Gm_R(u_R,w_R) \;=\; \Omega_u\cdot \Jm\,\Omega_w,
+  \qquad \Omega_u = (R^{\top}u_R)^{\vee},
+\end{equation}
+so $\Ig = \Jm$ under $\so\cong\Rm^3$. We write $\normJ{x}^2 = x\cdot\Jm x$.
+
+\subsection{Hamiltonian form on $T^{*}\SO$ and Lie--Poisson reduction}
+
+Left-trivialise $T^{*}\SO\cong\SO\times\Rm^3$, $\alpha_R\mapsto(R,\Pi)$ with
+$\Pi = \Jm\Omega$ the body angular momentum. The Hamiltonian is
+\begin{equation}
+  H(R,\Pi) \;=\; \tfrac12\,\Pi\cdot\Jm^{-1}\Pi ,
+\end{equation}
+which is left-invariant ($\mathbf{d}_RH = 0$; a spacecraft has no gravitational
+potential in this model). Since
+$\dpair{\ad^{*}_{\Omega}\Pi}{\zeta} = \Pi\cdot(\Omega\times\zeta) = (\Pi\times\Omega)\cdot\zeta$,
+Lemma~\ref{lem:triv} gives $\ad^{*}_{\Omega}\Pi = \Pi\times\Omega$ and hence
+\begin{equation}
+  \boxed{\;\dot R = R\hat\Omega, \qquad \dot\Pi = \Pi\times\Omega + \tau
+  \quad\Longleftrightarrow\quad
+  \Jm\dot\Omega + \Omega\times\Jm\Omega = \tau . \;}
+  \label{eq:euler}
+\end{equation}
+These are Euler's equations; the second is the Lie--Poisson equation on
+$\so^{*}$ for the $(-)$ bracket, and equivalently the Euler--Poincar\'e equation
+for the reduced Lagrangian $\ell(\Omega)=\tfrac12\Omega\cdot\Jm\Omega$. With
+$\tau\equiv0$, Note~I, Prop.~3.1 applies verbatim: $\Lie_{X_H}\omega_0=0$ and the
+drift is symplectic, hence (Note~I, Prop.~3.2) never contracting.
+
+\subsection{Affine connection form}
+
+\begin{lemma}
+\label{lem:so3-conn}
+For the left-invariant metric $\Jm$ on $\SO$,
+\begin{equation}
+  \Gamma(x,y) \;=\; \tfrac12\Big( x\times y + \Jm^{-1}\big(x\times\Jm y\big)
+                    + \Jm^{-1}\big(y\times\Jm x\big)\Big),
+  \qquad
+  \Gamma(x,x) = \Jm^{-1}(x\times\Jm x),
+  \label{eq:so3-Gamma}
+\end{equation}
+and consequently \eqref{eq:euler} is equivalent to
+\begin{equation}
+  \Dt\Omega \;=\; \dot\Omega + \Jm^{-1}\big(\Omega\times\Jm\Omega\big) \;=\; \Jm^{-1}\tau,
+  \qquad\text{i.e.}\qquad
+  \Gflat(\nabla_v v) = \tau .
+  \label{eq:so3-accs}
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+$\adt_x y = \Jm^{-1}(\Jm y\times x)$, since
+$\Jm(\adt_xy)\cdot z = \Jm y\cdot(x\times z) = (\Jm y\times x)\cdot z$; substitute
+into \eqref{eq:LC}. Setting $y=x$ gives $\Gamma(x,x) = -\adt_xx = \Jm^{-1}(x\times\Jm x)$.
+Then \eqref{eq:euler} reads $\dot\Omega = \Jm^{-1}\tau - \Jm^{-1}(\Omega\times\Jm\Omega)$.
+\end{proof}
+
+Comparing with Note~II, Lemma~1.1: here $\mathcal{H}=\Jm$ is constant, so
+$\dot{\mathcal{H}} - 2\mathcal{C} = -2\mathcal{C}$ and the skew-symmetry of the
+gyroscopic matrix $\mathcal{C}(\Omega)W = \Jm\Gamma(\Omega,W)$ is the whole content
+of $\nabla\Gm=0$ in this case.
+
+\subsection{Tracking error system}
+
+Let $R_d(t)$ satisfy $\dot R_d = R_d\hat\Omega_d$ with $\Omega_d,\dot\Omega_d$ known
+and bounded. Define
+\begin{equation}
+  R_e \coloneqq R_d^{\top}R \in \SO,
+  \qquad
+  \Omr \coloneqq R_e^{\top}\Omega_d,
+  \qquad
+  \Ome \coloneqq \Omega - \Omr .
+  \label{eq:so3-err}
+\end{equation}
+
+\begin{lemma}[The error system is again left-invariant]
+\label{lem:err-kin}
+$\dot R_e = R_e\hat\Ome$ and $\dot\Omr = R_e^{\top}\dot\Omega_d - \Ome\times\Omr$.
+\end{lemma}
+
+\begin{proof}
+$\dot R_e = -\hat\Omega_dR_d^{\top}R + R_d^{\top}R\hat\Omega
+= R_e\big(\hat\Omega - R_e^{\top}\hat\Omega_dR_e\big) = R_e(\hat\Omega - \widehat{R_e^{\top}\Omega_d})$,
+using $R^{\top}\hat xR = \widehat{R^{\top}x}$. For the second,
+$\dot\Omr = \dot R_e^{\top}\Omega_d + R_e^{\top}\dot\Omega_d$ and
+$\dot R_e^{\top} = -\hat\Ome R_e^{\top}$.
+\end{proof}
+
+So $\Omr$ is the transport of the reference angular velocity to the current body
+frame --- a transport map in the sense of Note~II, Def.~2.1 --- and $(R_e,\Ome)$ is
+a curve on $\SO$ with body velocity $\Ome$. \emph{Tracking on $\SO$ is
+stabilisation of a left-invariant system on $\SO$}, and all of Note~I applies on
+the error copy.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The shaping potential and its Hessian}
+\label{sec:so3-pot}
+
+\begin{definition}
+For $\Km = \Km^{\top}\succ0$ define $\varphi\in\Cinf{\SO}$ and $\eR$ by
+\begin{equation}
+  \varphi(R_e) \;=\; \tfrac12\,\tr\!\big(\Km(I - R_e)\big),
+  \qquad
+  \eR \;=\; \tfrac12\big(\Km R_e - R_e^{\top}\Km\big)^{\vee}.
+\end{equation}
+\end{definition}
+
+\begin{lemma}[Gradient and Hessian]
+\label{lem:hess}
+Let $\mathbf{d}\varphi\in\Rm^3$ be the left-trivialised differential, defined by
+$\tfrac{d}{dt}\big|_0\varphi(R_e e^{t\hat\eta}) = \mathbf{d}\varphi\cdot\eta$.
+Then $\mathbf{d}\varphi = \eR$, $\grad\varphi = \Jm^{-1}\eR$, and
+$\Hess\varphi(\eta,\eta) = \eta\cdot\mathbf{H}(R_e)\,\eta$ with
+\begin{equation}
+  \boxed{\;
+  \mathbf{H}(R_e) \;=\; \tfrac12\Big(\tr(\Km R_e)\,I - \sym\!\big(\Km R_e\big)\Big)
+   \;-\; \sym\!\Big(\Jm\,\widehat{\Jm^{-1}\eR}\Big) .
+  \;}
+  \label{eq:Hmat}
+\end{equation}
+Hence $\Hess^{\sharp}\varphi = \Jm^{-1}\mathbf{H}$, whose $\Gm$-spectrum is the
+generalised spectrum of the pencil $(\mathbf{H},\Jm)$. At $R_e = I$,
+$\mathbf{H}(I) = \tfrac12\big(\tr(\Km)I - \Km\big)$.
+\end{lemma}
+
+\begin{proof}
+Writing $A = \Km R_e$, $\tfrac{d}{dt}\big|_0\varphi(R_ee^{t\hat\eta}) = -\tfrac12\tr(A\hat\eta)$;
+for any $A$, $\tr(A\hat\eta) = \tr(\hat a\hat\eta) = -2a\cdot\eta$ with
+$a=\tfrac12(A-A^{\top})^{\vee}$, giving $\mathbf{d}\varphi=\eR$. Differentiating
+$\eR$ again along $R_ee^{t\hat\eta}$ uses the identity
+\begin{equation}
+  \big(A\hat\eta + \hat\eta A^{\top}\big)^{\vee} \;=\; \big(\tr(A)I - A^{\top}\big)\eta
+  \qquad\text{for every }A\in\Rm^{3\times3},
+  \label{eq:vee-id}
+\end{equation}
+so $\tfrac{d^2}{dt^2}\big|_0\varphi(R_ee^{t\hat\eta}) = \eta\cdot E\eta$ with
+$E = \tfrac12(\tr(\Km R_e)I - R_e^{\top}\Km)$ and
+$\sym(E) = \tfrac12(\tr(\Km R_e)I - \sym(\Km R_e))$. The curve
+$t\mapsto R_ee^{t\hat\eta}$ is \emph{not} a geodesic (one-parameter subgroups are
+geodesics only for bi-invariant metrics), and has covariant acceleration
+$\Gamma(\eta,\eta)$; therefore
+$\Hess\varphi(\eta,\eta) = \tfrac{d^2}{dt^2}\big|_0\varphi(R_ee^{t\hat\eta}) - \mathbf{d}\varphi\cdot\Gamma(\eta,\eta)$.
+Finally, with $w=\Jm^{-1}\eR$,
+$\eR\cdot\Gamma(\eta,\eta) = w\cdot(\eta\times\Jm\eta) = \eta^{\top}\Jm\hat w\,\eta
+= \eta^{\top}\sym(\Jm\hat w)\eta$.
+\end{proof}
+
+\begin{remark}
+The second term of \eqref{eq:Hmat} vanishes identically when $\Jm = jI$, since
+$\sym(\hat w)=0$. It is the correction that distinguishes a left-invariant from a
+bi-invariant metric, and it is precisely what a Euclidean derivation of the
+Hessian would miss.
+\end{remark}
+
+\begin{proposition}[Isotropising gain, and the inertia triangle inequality]
+\label{prop:isotropise}
+$\Hess^{\sharp}\varphi(I) = k\,\id$ if and only if
+\begin{equation}
+  \Km \;=\; k\big(\tr(\Jm)\,I - 2\Jm\big),
+  \qquad k>0 .
+  \label{eq:iso-gain}
+\end{equation}
+This $\Km$ is positive-definite if and only if
+$\lambda_{\max}(\Jm) < \tr(\Jm) - \lambda_{\max}(\Jm)$, i.e.\ iff the largest
+principal moment of inertia is strictly less than the sum of the other two ---
+which holds for every rigid body that is not a planar lamina.
+\end{proposition}
+
+\begin{proof}
+$\Jm^{-1}\mathbf{H}(I) = k\id \iff \tfrac12(\tr(\Km)I-\Km) = k\Jm$. Taking traces,
+$\tr\Km = k\tr\Jm$; substituting gives \eqref{eq:iso-gain}, and conversely
+$\tr\big(k(\tr(\Jm)I-2\Jm)\big) = k\tr\Jm$ returns $\mathbf{H}(I) = k\Jm$. Positivity
+of $\Km$ is $\tr(\Jm) - 2\lambda_{\max}(\Jm)>0$. Writing $\Jm$'s eigenvalues as the
+principal moments $J_1\le J_2\le J_3$, this is $J_1+J_2>J_3$, the standard
+triangle inequality, with equality exactly for a lamina.
+\end{proof}
+
+Under \eqref{eq:iso-gain} the shaped stiffness is isotropic \emph{at} the target,
+so by Note~I, Remark~6.5 arbitrarily small damping is admissible in the
+infinitesimal limit; the finite-region result below quantifies the price of a
+finite contraction region.
+
+The critical points of $\varphi$ are $R_e=I$ and the three rotations by $\pi$ about
+the eigenaxes of $\Km$, with values $\tr(\Km)-\kappa_i$ where $\kappa_i$ are the
+eigenvalues of $\Km$. Hence
+\begin{equation}
+  \varphi(R_e) < \tr(\Km) - \lambda_{\max}(\Km)
+  \quad\Longrightarrow\quad
+  R_e = I \text{ is the only critical point in that sublevel set}.
+  \label{eq:crit}
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Curvature of $(\SO,\Gm_{\Jm})$}
+\label{sec:so3-curv}
+
+Note~I, Thm.~6.4 needs the Jacobi operator $\Jac_v(u)=R(u,v)v$. From
+Lemma~\ref{lem:LC}, for left-invariant fields
+\begin{equation}
+  R(x,y)z \;=\; \Gamma\big(x,\Gamma(y,z)\big) - \Gamma\big(y,\Gamma(x,z)\big)
+                - \Gamma\big(x\times y,\;z\big).
+  \label{eq:curv}
+\end{equation}
+
+\begin{lemma}
+\label{lem:curv}
+\begin{enumerate}[label=(\roman*),leftmargin=2.1em,itemsep=2pt,topsep=2pt]
+\item If $\Jm = jI$ then $\Gamma(x,y)=\tfrac12 x\times y$ and $(\SO,\Gm_{\Jm})$ has
+      constant sectional curvature $\Sect \equiv 1/(4j) > 0$.
+\item For general $\Jm$, define
+      \begin{equation}
+        C_R \;\coloneqq\; \sup_{\normJ{v}=1}\; \big\|\,\Jac_v\,\big\|_{\Jm}
+        \qquad\text{so that}\qquad
+        \big\|\Jac_v\big\|_{\Jm} \le C_R\,\normJ{v}^2 .
+        \label{eq:CR}
+      \end{equation}
+      $\Jac_v$ is $\Gm$-symmetric, and $C_R$ is a two-parameter supremum over the
+      unit $\Jm$-sphere, computable to machine precision. A crude closed-form
+      bound is $C_R \le 2c_\Gamma^2 + c_\Gamma c_{\ad}$ with
+      $c_{\ad} = \sqrt{\bar\jmath}/\underline\jmath$ and
+      $c_\Gamma = \tfrac12\big(\sqrt{\bar\jmath}/\underline\jmath + 2\bar\jmath/\underline\jmath^{3/2}\big)$,
+      $\underline\jmath = \lambda_{\min}(\Jm)$, $\bar\jmath = \lambda_{\max}(\Jm)$.
+\item If $\Jm \ne jI$, some sectional curvatures are negative.
+\end{enumerate}
+\end{lemma}
+
+Item (iii) is Milnor's observation for left-invariant metrics; for
+$\Jm=\mathrm{diag}(1,1,8)$ the sectional curvatures range over
+$[-5.00,\,2.00]$ numerically. This matters: by Note~I, \S5, negative curvature
+subtracts from the effective stiffness at rate $\normJ{\Ome}^2$ and \emph{cannot be
+repaired by damping}, because $\Damp$ acts only on the fibre block. An inertially
+asymmetric spacecraft therefore has an intrinsically velocity-bounded contraction
+region. The closed-form bound in (ii) is very conservative --- for
+$\Jm = \begin{bsmallmatrix}2&.3&.1\\.3&3.5&.2\\.1&.2&5\end{bsmallmatrix}$ it gives
+$14.7$ against a true $C_R = 0.176$ --- so \eqref{eq:CR} should be evaluated
+directly.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Controller, metric, and contraction theorem}
+\label{sec:so3-main}
+
+\subsection{Controller}
+
+\begin{definition}[Attitude tracking law]
+\label{def:so3-ctrl}
+With $\Km$ as in \eqref{eq:iso-gain}, damping gain $d>0$, and $R_e,\Omr,\Ome$ from
+\eqref{eq:so3-err}, set
+\begin{equation}
+  \boxed{\;
+  \tau \;=\; \Jm\big(R_e^{\top}\dot\Omega_d - \Ome\times\Omr\big)
+   \;+\; \Ome\times\Jm\Omr + \Omr\times\Jm\Ome + \Omr\times\Jm\Omr
+   \;-\; \eR \;-\; d\,\Jm\Ome .
+  \;}
+  \label{eq:so3-tau}
+\end{equation}
+\end{definition}
+
+The first line is feedforward ($\Jm\dot\Omr$ plus the gyroscopic terms generated by
+the reference); the second is potential shaping plus damping. For a setpoint
+($\Omega_d\equiv0$) it collapses to $\tau = -\eR - d\,\Jm\Omega$, the classical PD
+law of \cite[\S11.1]{BL04}.
+
+\begin{proposition}[Closed loop]
+\label{prop:so3-cl}
+Under \eqref{eq:so3-tau}, the error system is exactly Note~I, eq.~(19) on the error
+copy of $\SO$ with $V\equiv0$, $\Damp = d\,\id$:
+\begin{equation}
+  \dot R_e = R_e\hat\Ome,
+  \qquad
+  \Dt\Ome \;=\; \dot\Ome + \Jm^{-1}\big(\Ome\times\Jm\Ome\big)
+             \;=\; -\grad\varphi(R_e) - d\,\Ome .
+  \label{eq:so3-cl}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+\eqref{eq:so3-cl} requires
+$\Jm\dot\Ome = -\Ome\times\Jm\Ome - \eR - d\Jm\Ome$. Since
+$\dot\Ome = \dot\Omega - \dot\Omr$ and $\Jm\dot\Omega = \tau - \Omega\times\Jm\Omega$,
+this holds iff
+$\tau = \Jm\dot\Omr + \big(\Omega\times\Jm\Omega - \Ome\times\Jm\Ome\big) - \eR - d\Jm\Ome$.
+Expanding $\Omega = \Ome+\Omr$ gives
+$\Omega\times\Jm\Omega - \Ome\times\Jm\Ome = \Ome\times\Jm\Omr + \Omr\times\Jm\Ome + \Omr\times\Jm\Omr$,
+and $\Jm\dot\Omr = \Jm(R_e^{\top}\dot\Omega_d - \Ome\times\Omr)$ by
+Lemma~\ref{lem:err-kin}.
+\end{proof}
+
+\subsection{Contraction region and the constants $\mu,\sigma$}
+
+Let $\mathcal{E}(R_e,\Ome) = \tfrac12\normJ{\Ome}^2 + \varphi(R_e)$. Along
+\eqref{eq:so3-cl}, $\dot{\mathcal{E}} = -d\normJ{\Ome}^2 \le 0$, so sublevel sets
+are forward invariant. Fix $c_0>0$ and put
+\begin{equation}
+  \mathcal{W} \;\coloneqq\; \big\{(R_e,\Ome) \;:\; \mathcal{E}(R_e,\Ome) < c_0 \big\}
+  \;\subset\; T^{*}\SO ,
+  \label{eq:W}
+\end{equation}
+identified with a subset of $T^{*}\SO$ by $\Pi_e = \Jm\Ome$. Define, with
+$\Jm = L L^{\top}$ a Cholesky factor,
+\begin{equation}
+  \mu \;\coloneqq\; \inf_{\mathcal{W}} \lambda_{\min}\!\big(\sym\Psi\big),
+  \qquad
+  \sigma \;\coloneqq\; \sup_{\mathcal{W}} \big\|\Psi\big\|_2,
+  \qquad
+  \Psi \;\coloneqq\; L^{-1}\mathbf{H}(R_e)L^{-\top} + L^{\top}\Jac_{\Ome}L^{-\top},
+  \label{eq:musigma}
+\end{equation}
+i.e.\ $\Psi$ is the $\Jm$-orthonormal representation of
+$\Hess^{\sharp}\varphi + \Jac_{\Ome}$. Both are explicit given $\Jm,\Km,c_0$ and
+are bounded by
+\begin{equation}
+  \mu \;\ge\; \inf_{\varphi(R_e)<c_0}\lambda_{\min}\big(L^{-1}\mathbf{H}L^{-\top}\big) - 2c_0C_R,
+  \qquad
+  \sigma \;\le\; \sup_{\varphi(R_e)<c_0}\big\|L^{-1}\mathbf{H}L^{-\top}\big\|_2 + 2c_0C_R ,
+  \label{eq:musigma-bnd}
+\end{equation}
+using $\normJ{\Ome}^2 < 2c_0$ on $\mathcal{W}$ and \eqref{eq:CR}.
+
+\subsection{Contraction metric}
+
+\begin{definition}[Contraction metric on $T^{*}\SO$]
+\label{def:so3-metric}
+Let $w\in T_\alpha(T^{*}\SO)$ split as $(u,\xi)$ in the $\nabla$-induced splitting
+of Note~I, \S4.1, with $u,\xi\in\Rm^3$ the left-trivialised (body) representations
+of the horizontal and vertical components. With $\mu,\sigma$ from
+\eqref{eq:musigma} and $d>0$, set
+\begin{equation}
+  \boxed{\;
+  G_\alpha(w,w) \;=\; a\;u\cdot\Jm u \;+\; 2b\;u\cdot\Jm\xi \;+\; \xi\cdot\Jm\xi,
+  \qquad
+  b = \tfrac{d}{2},
+  \quad
+  a = \tfrac{d^2}{2} + \tfrac{\mu+\sigma}{2}. \;}
+  \label{eq:so3-G}
+\end{equation}
+\end{definition}
+
+This is Note~I, Def.~6.1 and eq.~(23) with $c=1$: horizontal block $a\,\pi^{*}\Gm$,
+vertical block $\Gm^{-1}$, and the base--fibre cross term $b\,\Pi$ that Note~I,
+Prop.~5.1 shows is indispensable. Positive-definiteness is
+$a > b^2$, i.e.\ $d^2/2 + (\mu+\sigma)/2 > d^2/4$, automatic.
+
+\subsection{Main theorem}
+
+\begin{theorem}[Contraction of the attitude tracking loop]
+\label{thm:so3}
+Let $\Jm\succ0$, let $\Km$ satisfy \eqref{eq:iso-gain} (or be any $\Km\succ0$), let
+$c_0>0$ satisfy \eqref{eq:crit} and be small enough that $\mu>0$ in
+\eqref{eq:musigma}, and let $\mathcal{W}$ be $K$-reachable in the metric
+\eqref{eq:so3-G}. If the damping gain obeys
+\begin{equation}
+  \boxed{\;\; d \;>\; \frac{\sigma-\mu}{2\sqrt{\mu}} \;\;}
+  \label{eq:so3-cond}
+\end{equation}
+then the closed loop \eqref{eq:so3-cl} is contracting on $\mathcal{W}$ with respect
+to $G$ of \eqref{eq:so3-G}, with rate
+\begin{equation}
+  \lambda = \frac{\lambda_{\min}(\mathcal{Q})}{\lambda_{\max}(\mathcal{P})},
+  \quad
+  \mathcal{Q} = \begin{bmatrix}\tfrac{\mu d}{2} & -\tfrac{\kappa}{2}\\[2pt]
+                               -\tfrac{\kappa}{2} & \tfrac{d}{2}\end{bmatrix},
+  \quad
+  \mathcal{P} = \begin{bmatrix}a & b\\ b& 1\end{bmatrix},
+  \quad
+  \kappa \le \tfrac{\sigma-\mu}{2}.
+\end{equation}
+Consequently any two error trajectories in $\mathcal{W}$ satisfy
+$d_G(\Phi_t(\alpha_0),\Phi_t(\alpha_1)) \le Ke^{-\lambda t}d_G(\alpha_0,\alpha_1)$,
+and since $(R_e,\Ome)=(I,0)$ is an equilibrium of \eqref{eq:so3-cl} lying in
+$\mathcal{W}$, every trajectory in $\mathcal{W}$ converges to it exponentially:
+$R\to R_d$ and $\Omega\to\Omr$.
+\end{theorem}
+
+\begin{proof}
+By Prop.~\ref{prop:so3-cl} the closed loop is Note~I, eq.~(19) on $Q=\SO$ with
+$V\equiv0$, shaping potential $\varphi$, and $\Damp = d\,\id$, which is
+$\nabla$-parallel (Note~I, Assumption~6.3). Full actuation
+(Note~I, Assumption~6.2) holds because $\tau$ ranges over all of $\so^{*}\cong\Rm^3$.
+Note~I, eq.~(20) then gives the covariant variational system
+\begin{equation}
+  \Dt u = \xi,
+  \qquad
+  \Dt\xi = -\Psi_\alpha(u) - d\,\xi,
+  \qquad
+  \Psi_\alpha = \Hess^{\sharp}\varphi(R_e) + \Jac_{\Ome},
+  \label{eq:so3-var}
+\end{equation}
+with $\Hess^{\sharp}\varphi = \Jm^{-1}\mathbf{H}$ from Lemma~\ref{lem:hess} and
+$\Jac_{\Ome}$ from \eqref{eq:curv}. Both are $\Gm$-symmetric, and by
+\eqref{eq:musigma} $\spec_{\Gm}(\Psi_\alpha)\subset[\mu,\sigma]$ uniformly on
+$\mathcal{W}$. $\mathcal{W}$ is forward invariant since
+$\dot{\mathcal{E}} = -d\normJ{\Ome}^2\le0$, and the closed loop is forward complete
+on it because $\overline{\mathcal{W}}$ is compact ($\SO$ compact, $\Ome$ bounded).
+All hypotheses of Note~I, Thm.~6.4 are met, and \eqref{eq:so3-cond} is its
+condition (22) with $c=1$. The metric \eqref{eq:so3-G} is its eq.~(23).
+
+For completeness, the one-line verification: writing
+$G(w,w) = a\normJ{u}^2 + 2b\ipJ{u}{\xi} + \normJ{\xi}^2$ and using
+$\nabla\Gm=0$ together with \eqref{eq:so3-var},
+\[
+  \tfrac12\tfrac{d}{dt}G(w,w)
+  = -b\ipJ{\Psi u}{u} - (d-b)\normJ{\xi}^2
+    + \ipJ{\big(a\,\id - bd\,\id - \Psi\big)\xi}{u} .
+\]
+The choice $a = bd + \tfrac{\mu+\sigma}{2}$ centres the residual operator so that
+$\kappa \coloneqq \sup_{\mathcal{W}}\norm{a\id-bd\id-\Psi} \le \tfrac{\sigma-\mu}{2}$,
+and $b=d/2$ maximises $b\mu(d-b)$, reducing $\mathcal{Q}\succ0$ to
+\eqref{eq:so3-cond}. Then
+$\tfrac{d}{dt}G(w,w) \le -2\lambda G(w,w)$, and \cite[Thm.~2.3]{SB13} gives the
+distance bound.
+\end{proof}
+
+\begin{remark}[Numerical verification]
+\label{rem:numeric}
+For $\Jm = \begin{bsmallmatrix}2&0.3&0.1\\0.3&3.5&0.2\\0.1&0.2&5\end{bsmallmatrix}$,
+$\Km = 0.7(\tr(\Jm)I-2\Jm)$ (eigenvalues $0.304,2.413,4.633 \succ 0$, consistent with
+Prop.~\ref{prop:isotropise}), $d=1.2$ and $c_0 = 0.3984$, direct evaluation of
+\eqref{eq:musigma} gives $\mu = 0.5485$, $\sigma = 0.8272$, so
+\eqref{eq:so3-cond} requires $d > 0.1882$ --- satisfied. The metric is
+$(a,b,c) = (1.4079,\,0.6,\,1)$ with $ac-b^2 = 1.048>0$ and $\lambda = 0.1699$.
+Integrating \eqref{eq:so3-var} along a closed-loop trajectory from
+$\mathcal{E}=c_0$, the observed $\sup_t \dot G/G$ is $-1.011$, comfortably below
+the certified $-2\lambda = -0.340$: the certificate is valid and, as expected from
+the Young-inequality step, conservative.
+\end{remark}
+
+\begin{remark}[Partial-contraction alternative]
+Note~II, Thm.~3.4 gives a cheaper claim: with
+$\tau = \Jm\dot\Omr + \mathcal{C}(\Omega)\Omr - \Jm\Kgain\Ome$,
+$\mathcal{C}(\Omega)W = \Jm\Gamma(\Omega,W)$, the virtual system on
+$\gamma^{*}T\SO$ is contracting in $\Gm=\Jm$ alone, with rate
+$\lambda_{\min}(\sym_{\Jm}\Kgain)$, giving $\Omega\to\Omr$ but not $R\to R_d$.
+That argument needs no Hessian and no curvature --- precisely because, as Note~II,
+\S5 explains, the virtual system suppresses the horizontal channel where
+$\Hess^{\sharp}\varphi$ and $\Jac_v$ live. Theorem~\ref{thm:so3} is the stronger,
+more expensive claim.
+\end{remark}
+
+\begin{remark}[Global obstruction]
+$T^{*}\SO$ deformation-retracts onto $\SO\simeq\Rm P^3$, which is not
+contractible, so by Note~I, \S5 (following \cite[\S2]{SB13} and Bhat--Bernstein)
+$\mathcal{W}$ can never be all of $T^{*}\SO$. Condition \eqref{eq:crit} is the
+concrete form this takes: the three $\pi$-rotations about the eigenaxes of $\Km$
+are the unavoidable non-target critical points.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part*{Part B. Quadrotor on $\SE$}
+\addcontentsline{toc}{section}{Part B. Quadrotor on $\SE$}
+\setcounter{section}{0}
+\renewcommand{\thesection}{B.\arabic{section}}
+\setcounter{theorem}{0}
+\renewcommand{\thetheorem}{B.\arabic{section}.\arabic{theorem}}
+
+\section{Dynamics}
+\label{sec:se3-dyn}
+
+\subsection{Configuration manifold, metric, potential}
+
+$Q = \SE$, $q = (x,R)$ with $x\in\Rm^3$ the centre of mass in the inertial frame.
+$\se \cong \Rm^3\times\Rm^3 \ni \xi = (V,\Omega)$ with
+\begin{equation}
+  \big[(V_1,\Omega_1),(V_2,\Omega_2)\big]
+  \;=\; \big(\Omega_1\times V_2 - \Omega_2\times V_1,\; \Omega_1\times\Omega_2\big).
+\end{equation}
+The left-invariant frame gives $\dot x = RV$, $\dot R = R\hat\Omega$. The kinetic
+energy metric is left-invariant with generalised inertia
+\begin{equation}
+  \Ig = \begin{bmatrix} mI_3 & 0\\ 0 & \Jm\end{bmatrix},
+  \qquad
+  \tfrac12\ip{\xi}{\xi}_{\Ig} = \tfrac12 m\norm{V}^2 + \tfrac12\Omega\cdot\Jm\Omega .
+\end{equation}
+Gravity is $V_g(x,R) = mg\,e_3\cdot x$; its left-trivialised differential is
+$\mathbf{d}V_g = (mg\,\Gamma_{\!3},\,0)$ with the \emph{advected direction}
+$\Gamma_{\!3}\coloneqq R^{\top}e_3$, so $\grad V_g = (g\Gamma_{\!3},0)$. The potential is
+\emph{not} left-invariant, which is why only a semidirect-product reduction is
+available.
+
+\subsection{Hamiltonian, Lie--Poisson, Euler--Poincar\'e}
+
+With $\mu = \Ig\xi = (mV,\Jm\Omega)$ and
+$H = \tfrac{1}{2m}\norm{mV}^2 + \tfrac12\Omega\cdot\Jm\Omega + mge_3\cdot x$,
+one computes
+$\ad^{*}_{(V,\Omega)}(p,\Pi) = (p\times\Omega,\; p\times V + \Pi\times\Omega)$,
+which at $p=mV$ reduces to $(mV\times\Omega,\;\Jm\Omega\times\Omega)$.
+Lemma~\ref{lem:triv} with body wrench $F = (fe_3,\,M)$ then gives
+\begin{equation}
+  \boxed{\;
+  \begin{aligned}
+    m\dot V &= mV\times\Omega + f e_3 - mg\,\Gamma_{\!3}, \\
+    \Jm\dot\Omega &= \Jm\Omega\times\Omega + M, \\
+    \dot\Gamma_{\!3} &= \Gamma_{\!3}\times\Omega,
+    \qquad \dot x = RV, \qquad \dot R = R\hat\Omega .
+  \end{aligned}\;}
+  \label{eq:se3-EP}
+\end{equation}
+The first three lines are the Euler--Poincar\'e equations on
+$\se^{*}\ltimes\Rm^3$; eliminating $V$ in favour of $\dot x$ returns the familiar
+inertial-frame model
+\begin{equation}
+  m\ddot x = f R e_3 - mg\,e_3,
+  \qquad
+  \Jm\dot\Omega + \Omega\times\Jm\Omega = M .
+  \label{eq:se3-NE}
+\end{equation}
+By \eqref{eq:covaccel} this is $\Gflat(\nabla_vv) = -dV_g + F$, i.e.\ Note~I,
+eq.~(1); with $F\equiv0$ the drift is symplectic (Note~I, Prop.~3.1).
+
+\subsection{Inputs and the under-actuation obstruction}
+
+Four rotor thrusts $f_i\ge0$ map to $(f,M)$ through the constant, invertible mixer
+determined by arm length and torque coefficient, so $(f,M)\in\Rm\times\Rm^3$ is an
+equivalent input --- subject to $f_i\in[0,f_{\max}]$, which we return to in
+\S\ref{sec:se3-caveats}.
+
+\begin{proposition}[Note~I, Assumption~6.2 fails]
+\label{prop:underact}
+The input covector fields span
+$\mathcal{F}_q = \{(ce_3,\,M) : c\in\Rm,\ M\in\Rm^3\} \subset \se^{*}$, of dimension
+$4 < 6 = \dim\se^{*}$. The unactuated directions are the body $e_1,e_2$
+translations. Hence no choice of $(f,M)$ can realise the shaping-plus-damping law
+of Note~I, eq.~(18), and Note~I, Thm.~6.4 does not apply.
+\end{proposition}
+
+This is not a technicality that can be patched by a different metric: Note~I,
+\S8 flags full actuation as used essentially, and the missing directions are
+exactly the ones a quadrotor must generate by tilting. What follows is the
+standard resolution --- generate the missing translational force by attitude ---
+recast so that the coupling is handled by \cite[Lem.~3.2]{SB13}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Decomposition into two contracting subsystems}
+\label{sec:se3-decomp}
+
+\subsection{Virtual translational input}
+
+Write $b_3 \coloneqq Re_3$ and define the \emph{virtual translational input}
+$\upsilon \coloneqq f b_3 \in \Rm^3$. If $\upsilon$ were free, the translational
+subsystem $m\ddot x = \upsilon - mge_3$ on $Q_{\mathrm{tr}} = \Rm^3$ would be fully
+actuated. It is not: $\upsilon$ is constrained to the ray through $b_3$.
+
+Given a reference $x_d(t)$, set $e_x = x-x_d$, $e_v = \dot x - \dot x_d$, gains
+$k_x,k_v>0$, and
+\begin{equation}
+  F_{\mathrm{des}} \;\coloneqq\; -k_xe_x - k_ve_v + mg\,e_3 + m\ddot x_d,
+  \qquad
+  f \;\coloneqq\; F_{\mathrm{des}}\cdot b_3,
+  \qquad
+  b_{3c} \;\coloneqq\; \frac{F_{\mathrm{des}}}{\norm{F_{\mathrm{des}}}} .
+  \label{eq:Fdes}
+\end{equation}
+The commanded attitude $R_c$ has third column $b_{3c}$, first column
+$b_{1c} = \Pi_{b_{3c}^{\perp}}(b_{1d})/\norm{\cdot}$ for a desired heading $b_{1d}$
+with $b_{1d}\not\parallel b_{3c}$, and $b_{2c}=b_{3c}\times b_{1c}$.
+
+\begin{lemma}[Translational error dynamics]
+\label{lem:tr-err}
+With \eqref{eq:Fdes},
+\begin{equation}
+  m\,\ddot e_x + k_v e_v + k_x e_x \;=\; \Delta,
+  \qquad
+  \Delta \coloneqq -\big(I - b_3b_3^{\top}\big)F_{\mathrm{des}},
+  \qquad
+  \norm{\Delta} = \norm{F_{\mathrm{des}}}\,\sin\theta ,
+  \label{eq:tr-err}
+\end{equation}
+where $\theta = \angle(b_3,b_{3c})$. In particular $\Delta = 0$ iff $b_3 = \pm b_{3c}$.
+\end{lemma}
+
+\begin{proof}
+$m\ddot e_x = fb_3 - mge_3 - m\ddot x_d = (F_{\mathrm{des}}\cdot b_3)b_3 - F_{\mathrm{des}} - k_xe_x - k_ve_v$
+after substituting $mge_3+m\ddot x_d = F_{\mathrm{des}}+k_xe_x+k_ve_v$; and
+$(F_{\mathrm{des}}\cdot b_3)b_3 - F_{\mathrm{des}} = -(I-b_3b_3^{\top})F_{\mathrm{des}}$.
+Finally $(I-b_3b_3^{\top})F_{\mathrm{des}} = \norm{F_{\mathrm{des}}}(I-b_3b_3^{\top})b_{3c}$
+and $\norm{(I-b_3b_3^{\top})b_{3c}} = \sin\theta$.
+\end{proof}
+
+So $\Delta$ is exactly the component of the desired force that the current attitude
+cannot deliver, and it is the interconnection signal.
+
+\subsection{The translational subsystem is contracting for every $k_v>0$}
+
+\begin{proposition}[Translational certificate]
+\label{prop:tr}
+Consider \eqref{eq:tr-err} with $\Delta\equiv0$ as a mechanical system on
+$Q_{\mathrm{tr}}=\Rm^3$ with $\Gm_{\mathrm{tr}} = mI$, shaping potential
+$\varphi_{\mathrm{tr}} = \tfrac{k_x}{2}\norm{e_x}^2$ and damping
+$\Damp_{\mathrm{tr}} = \tfrac{k_v}{m}\id$. Then $Q_{\mathrm{tr}}$ is flat, so
+$\Jac_v \equiv 0$ and
+\begin{equation}
+  \Psi_{\mathrm{tr}} = \Hess^{\sharp}\varphi_{\mathrm{tr}} = \tfrac{k_x}{m}\,\id,
+  \qquad\text{hence}\qquad
+  \mu_{\mathrm{tr}} = \sigma_{\mathrm{tr}} = \tfrac{k_x}{m}.
+\end{equation}
+Condition \eqref{eq:so3-cond} reads $d_{\mathrm{tr}} = k_v/m > 0$: \emph{every}
+positive damping gain works. The certificate is
+\begin{equation}
+  G_{\mathrm{tr}}(w,w) \;=\; m\Big( a_{\mathrm{tr}}\norm{u}^2 + 2 b_{\mathrm{tr}}\,u\cdot\xi + \norm{\xi}^2 \Big),
+  \qquad
+  b_{\mathrm{tr}} = \frac{k_v}{2m},
+  \quad
+  a_{\mathrm{tr}} = \frac{k_v^2}{2m^2} + \frac{k_x}{m},
+  \label{eq:Gtr}
+\end{equation}
+with rate $\lambda_{\mathrm{tr}} = \lambda_{\min}(\mathcal{Q}_{\mathrm{tr}})/\lambda_{\max}(\mathcal{P}_{\mathrm{tr}})$,
+$\mathcal{Q}_{\mathrm{tr}} = \mathrm{diag}\big(\tfrac{k_xk_v}{2m^2},\tfrac{k_v}{2m}\big)$,
+$\mathcal{P}_{\mathrm{tr}} = \begin{bsmallmatrix}a_{\mathrm{tr}}&b_{\mathrm{tr}}\\ b_{\mathrm{tr}}&1\end{bsmallmatrix}$,
+on any $\mathcal{W}_{\mathrm{tr}}$ that is a sublevel set of
+$\tfrac{m}{2}\norm{e_v}^2 + \varphi_{\mathrm{tr}}$.
+\end{proposition}
+
+\begin{proof}
+Note~I, Thm.~6.4 with $Q=\Rm^3$, whose curvature vanishes, so
+$\Psi = \Hess^{\sharp}\varphi_{\mathrm{tr}}$ is a constant multiple of the identity
+and $\kappa = 0$; this is Note~I, Remark~6.5.
+\end{proof}
+
+Note that the \emph{cross term} $2b_{\mathrm{tr}}u\cdot\xi$ is still essential:
+Note~I, Prop.~5.1 rules out the block-diagonal energy metric here as everywhere.
+
+\subsection{The attitude subsystem}
+
+Apply Part~A with $R_d$ replaced by the commanded $R_c(t)$ of \eqref{eq:Fdes}, the
+control being $M$ in place of $\tau$. This requires $R_c$ to be twice
+differentiable with bounded $\Omega_c,\dot\Omega_c$, which holds on any region
+where $F_{\mathrm{des}}$ is bounded away from zero and $x_d\in C^4$. Theorem~\ref{thm:so3}
+then gives a contracting attitude subsystem on $\mathcal{W}_{\mathrm{att}}$ with
+metric $G_{\mathrm{att}}$ of \eqref{eq:so3-G} and rate $\lambda_{\mathrm{att}}$.
+
+\subsection{This is a feedback interconnection, not a cascade}
+
+Two couplings are present:
+\begin{enumerate}[label=(\roman*),leftmargin=2.1em,itemsep=2pt,topsep=2pt]
+\item \textbf{attitude $\to$ translation}: through $\Delta$ in \eqref{eq:tr-err},
+      driven by the attitude error;
+\item \textbf{translation $\to$ attitude}: through $R_c$, which depends on
+      $F_{\mathrm{des}}$ and hence on $(e_x,e_v)$.
+\end{enumerate}
+Because of (ii) the composite is \emph{not} a cascade, so \cite[Lem.~3.1]{SB13}
+does not apply and the small-gain result \cite[Lem.~3.2]{SB13} is required.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Interconnection theorem}
+\label{sec:se3-main}
+
+Following \cite[eq.~(11)]{SB13}, define the induced input--output gains of the two
+contracting-with-inputs subsystems, with $h_1$ the output map of the translational
+subsystem ($h_1(e_x,e_v) = F_{\mathrm{des}}$, which determines $R_c$) and $h_2$ that
+of the attitude subsystem ($h_2(R_e,\Ome) = b_3$, which determines $\Delta$):
+\begin{equation}
+  \gamma_{\mathrm{tr}} \coloneqq
+  \sup_{\mathcal{W}_{\mathrm{tr}}}\;\sup_{w\in T\mathcal{W}_{\mathrm{att}}}
+  \frac{\tfrac12\big\|\partial_{\upsilon}X_{\mathrm{tr}}\circ (Th_2)\,w\big\|_{G_{\mathrm{tr}}}}
+       {\norm{w}_{G_{\mathrm{att}}}},
+  \qquad
+  \gamma_{\mathrm{att}} \coloneqq
+  \sup_{\mathcal{W}_{\mathrm{att}}}\;\sup_{v\in T\mathcal{W}_{\mathrm{tr}}}
+  \frac{\tfrac12\big\|\partial_{R_c}X_{\mathrm{att}}\circ (Th_1)\,v\big\|_{G_{\mathrm{att}}}}
+       {\norm{v}_{G_{\mathrm{tr}}}} .
+  \label{eq:gains}
+\end{equation}
+
+\begin{theorem}[Contraction of the quadrotor tracking loop]
+\label{thm:se3}
+Let $\mathcal{W}_{\mathrm{tr}}\subset T^{*}\Rm^3$ and $\mathcal{W}_{\mathrm{att}}\subset T^{*}\SO$
+be compact, forward-invariant, $K$-reachable regions on which
+\begin{enumerate}[label=(H\arabic*),leftmargin=2.8em,itemsep=2pt,topsep=2pt]
+\item \label{H1} the attitude loop satisfies Theorem~\ref{thm:so3} with rate
+      $\lambda_{\mathrm{att}}$ and the translational loop satisfies
+      Prop.~\ref{prop:tr} with rate $\lambda_{\mathrm{tr}}$;
+\item \label{H2} $\norm{F_{\mathrm{des}}} \ge F_{\min} > 0$ and
+      $\theta = \angle(b_3,b_{3c}) \le \theta_{\max} < \pi/2$, so the commanded
+      thrust $f = \norm{F_{\mathrm{des}}}\cos\theta \ge F_{\min}\cos\theta_{\max} > 0$
+      and $R_c$ is well defined and $C^2$;
+\item \label{H3} the gains \eqref{eq:gains} are finite and satisfy the small-gain
+      condition
+      \begin{equation}
+        \boxed{\;\;\gamma_{\mathrm{tr}}\,\gamma_{\mathrm{att}}
+        \;<\; \lambda_{\mathrm{tr}}\,\lambda_{\mathrm{att}} .\;\;}
+        \label{eq:smallgain}
+      \end{equation}
+\end{enumerate}
+Then there exist $\alpha_1,\alpha_2>0$ such that the block-diagonal metric
+\begin{equation}
+  G \;=\; \alpha_1\,G_{\mathrm{tr}} \;\oplus\; \alpha_2\,G_{\mathrm{att}},
+  \qquad
+  \frac{\alpha_1}{\alpha_2} = \frac{\gamma_{\mathrm{att}}}{\gamma_{\mathrm{tr}}},
+  \label{eq:se3-G}
+\end{equation}
+makes the closed loop contracting on
+$\mathcal{W}_{\mathrm{tr}}\times\mathcal{W}_{\mathrm{att}}$, and $x\to x_d$,
+$R\to R_c$ exponentially in $d_G$.
+\end{theorem}
+
+\begin{proof}
+\ref{H1} supplies two contracting systems with inputs in the sense of
+\cite[\S3]{SB13}: the translational one with input $\upsilon$ (equivalently
+$\Delta$, by Lemma~\ref{lem:tr-err}) and metric \eqref{eq:Gtr}, the attitude one
+with input $R_c$ and metric \eqref{eq:so3-G}. \ref{H2} guarantees both output maps
+are smooth on the regions and that $f>0$, so the mixer inversion is well posed.
+\ref{H3} is exactly hypothesis (12) of \cite[Lem.~3.2]{SB13}. That lemma's proof
+computes, for $w = (v_1,w_2)$ in the product tangent space,
+\[
+  \ip{\overset{G}{\nabla}_{w}X}{w}_{G}
+  \le -\alpha_1\lambda_{\mathrm{tr}}\norm{v_1}^2_{G_{\mathrm{tr}}}
+      -\alpha_2\lambda_{\mathrm{att}}\norm{w_2}^2_{G_{\mathrm{att}}}
+      +\big(\alpha_1\gamma_{\mathrm{tr}}+\alpha_2\gamma_{\mathrm{att}}\big)
+        \norm{v_1}_{G_{\mathrm{tr}}}\norm{w_2}_{G_{\mathrm{att}}},
+\]
+which is negative-definite iff the associated $2\times2$ matrix is positive
+definite; minimising the resulting convex condition over $\alpha_1/\alpha_2$ gives
+the optimiser \eqref{eq:se3-G} and reduces the condition to \eqref{eq:smallgain}.
+Contraction plus the existence of the equilibrium $(e_x,e_v,R_e,\Ome)=(0,0,I,0)$
+in the region gives exponential convergence by \cite[Prop.~2.5(i)]{SB13}.
+\end{proof}
+
+\begin{remark}[What \ref{H3} costs, and how to discharge it]
+\label{rem:gains}
+\eqref{eq:smallgain} is a genuine hypothesis, not a corollary. Both gains admit
+bounds that make it checkable:
+$\gamma_{\mathrm{tr}}$ is governed by
+$\partial\Delta/\partial b_3 = -\big(b_3F_{\mathrm{des}}^{\top} + (F_{\mathrm{des}}\cdot b_3)I\big)$,
+so $\gamma_{\mathrm{tr}} = O(\sup\norm{F_{\mathrm{des}}})$, i.e.\ large when the
+commanded acceleration is large; and $\gamma_{\mathrm{att}}$ is governed by
+$\partial b_{3c}/\partial F_{\mathrm{des}} = (I - b_{3c}b_{3c}^{\top})/\norm{F_{\mathrm{des}}}$
+together with $\max(k_x,k_v)$, so $\gamma_{\mathrm{att}} = O(\max(k_x,k_v)/F_{\min})$.
+Since $\lambda_{\mathrm{att}}$ grows with the attitude gains while
+$\gamma_{\mathrm{att}}$ does not, \eqref{eq:smallgain} is always achievable by
+making the attitude loop fast --- the usual timescale separation, here with an
+explicit certificate rather than an appeal to singular perturbation. Evaluating
+the suprema in \eqref{eq:gains} exactly is a finite-dimensional optimisation over
+the compact regions; we do not carry it out here, and Theorem~\ref{thm:se3} should
+be read as conditional on it.
+\end{remark}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Region conditions and limitations}
+\label{sec:se3-caveats}
+
+\begin{itemize}[leftmargin=1.6em,itemsep=3pt]
+\item \textbf{Thrust positivity.} \ref{H2} is not cosmetic. $f\le0$ makes
+      $b_{3c}$ undefined or reverses the loop; $\theta_{\max}<\pi/2$ is the
+      familiar ``do not flip'' condition and bounds the initial attitude error.
+\item \textbf{Rotor saturation.} The mixer inversion produces $f_i$ that must lie
+      in $[0,f_{\max}]$. Contraction is a property of the unsaturated vector
+      field; on the saturated set the closed loop is a different system and the
+      certificate is void. In practice $\mathcal{W}_{\mathrm{tr}}\times\mathcal{W}_{\mathrm{att}}$
+      must be intersected with the unsaturated set, and that set must be shown
+      forward invariant --- which we have not done.
+\item \textbf{Topology.} $T^{*}\SE$ retracts onto $\SE\simeq\Rm P^3\times\Rm^3$,
+      not contractible, so as in Part~A no global contraction region exists. The
+      attitude error function contributes the same three antipodal critical points.
+\item \textbf{Curvature.} The translational block is flat and the coupling is
+      handled by \eqref{eq:smallgain}, so curvature enters only through the
+      attitude block, where Lemma~\ref{lem:curv}(iii) applies: an inertially
+      asymmetric airframe has negative sectional curvatures and hence a
+      velocity-bounded $\mathcal{W}_{\mathrm{att}}$.
+\item \textbf{What under-actuation actually cost us.} Part~A yields an
+      unconditional theorem; Part~B yields a theorem conditional on \ref{H3}. The
+      gap is exactly Prop.~\ref{prop:underact}. A direct contraction certificate
+      for the under-actuated system on $T^{*}\SE$ --- not decomposed --- would
+      require the machinery of kinematic reduction and decoupling vector fields
+      \cite[Ch.~8]{BL04}, and as noted in Note~I, \S8, we do not have one.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\part*{Audit of claims}
+\addcontentsline{toc}{section}{Audit of claims}
+\setcounter{section}{0}
+\renewcommand{\thesection}{C}
+\section{}
+\label{sec:audit}
+\vspace{-2\baselineskip}
+
+\begin{itemize}[leftmargin=1.6em,itemsep=3pt]
+\item \emph{Verified symbolically and numerically for this note} (random-sample
+      checks to $10^{-10}$, plus closed-loop integration):
+      Lemma~\ref{lem:LC} (metric compatibility and torsion-freeness of
+      \eqref{eq:LC}); Lemma~\ref{lem:so3-conn} including
+      $\Gamma(x,x)=\Jm^{-1}(x\times\Jm x)$; the corrected vee identity
+      \eqref{eq:vee-id} --- note the transpose, without which the identity is
+      false for non-symmetric $A$; Lemma~\ref{lem:hess} and the Hessian matrix
+      \eqref{eq:Hmat}; Prop.~\ref{prop:isotropise}; Lemma~\ref{lem:curv}(i) and
+      the $\Gm$-symmetry of $\Jac_v$; the negative sectional curvatures quoted for
+      $\Jm=\mathrm{diag}(1,1,8)$; Prop.~\ref{prop:so3-cl} (closed-loop residual
+      $2.5\times10^{-16}$ over a $4\,$s time-varying-reference simulation);
+      Lemma~\ref{lem:err-kin}; the $\ad^{*}$ formula and Euler--Poincar\'e
+      equations \eqref{eq:se3-EP}; Lemma~\ref{lem:tr-err}; and the numbers in
+      Remark~\ref{rem:numeric}.
+\item \emph{Quoted from Note~I:} Prop.~3.1 (symplectic drift), Prop.~3.2 (no
+      symplectic field is contracting), \S4.1 (the $\nabla$-splitting), Prop.~4.3
+      (covariant variational equations), Prop.~5.1 (block-diagonal metrics fail),
+      Def.~6.1, Assumptions~6.2--6.3, Thm.~6.4 and Remark~6.5, \S5 (curvature and
+      topology), \S8 (limitations).
+\item \emph{Quoted from Note~II:} Lemma~1.1 (skew-symmetry is $\nabla\Gm=0$),
+      Def.~2.1 (transport maps and error functions), Thm.~3.4 (partial contraction).
+\item \emph{Quoted from \cite{SB13}:} Def.~2.1--2.2, Thm.~2.3, Prop.~2.5,
+      Lem.~3.1 (cascades), Lem.~3.2 and its eq.~(11)--(12) (feedback small gain).
+\item \emph{Quoted from \cite{BL04}:} \S4.6.2--4.6.3 (simple mechanical control
+      systems), \S5.3 (left-invariant metrics), \S11.1 (PD on Lie groups), Ch.~8
+      (kinematic reduction).
+\item \emph{Standard, stated without proof:} Koszul formula; Lie--Poisson and
+      semidirect-product reduction; Milnor's results on left-invariant metrics
+      (Lemma~\ref{lem:curv}(iii) is stated for general $\Jm$ but verified here only
+      by example); the structure of the quadrotor mixer.
+\item \emph{Assumed, not proved:} \ref{H3} of Theorem~\ref{thm:se3} --- the
+      small-gain condition; forward invariance of the unsaturated rotor set;
+      $K$-reachability of $\mathcal{W}$ in Theorem~\ref{thm:so3} and of
+      $\mathcal{W}_{\mathrm{tr}},\mathcal{W}_{\mathrm{att}}$ in
+      Theorem~\ref{thm:se3}. The order-of-magnitude gain estimates in
+      Remark~\ref{rem:gains} are heuristic, not bounds.
+\item \emph{Attribution:} the controller \eqref{eq:Fdes} and the commanded-attitude
+      construction are the standard geometric quadrotor design associated with
+      Lee, Leok and McClamroch; the recasting of its interconnection as
+      \cite[Lem.~3.2]{SB13} is done here and I have not checked it against the
+      literature.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{thebibliography}{9}
+
+\bibitem{BL04}
+F.~Bullo and A.~D.~Lewis,
+\emph{Geometric Control of Mechanical Systems}, Texts in Applied Mathematics,
+vol.~49, Springer, 2004.
+
+\bibitem{SB13}
+J.~W.~Simpson-Porco and F.~Bullo,
+\emph{Contraction Theory on Riemannian Manifolds}. Preprint submitted to
+\emph{Systems \& Control Letters}, June~5, 2013. Result numbers refer to that
+preprint.
+
+\bibitem{NoteI}
+\emph{Contraction-Based Control of Simple Mechanical Systems: A Cotangent-Bundle
+Formulation} (``Note~I'').
+
+\bibitem{NoteII}
+\emph{Partial Contraction for Mechanical Systems, Intrinsically} (``Note~II'').
+
+\end{thebibliography}
+
+\end{document}
