@@ -13,18 +13,17 @@ Zotero needs ZOTERO_API_KEY and ZOTERO_USER_ID in the environment:
     export ZOTERO_API_KEY=...        # zotero.org/settings/keys
     export ZOTERO_USER_ID=...        # the numeric id on that same page
 
-ponytail: stdlib only (urllib/tarfile/json). No requests, no pyzotero.
+arXiv is stdlib (urllib/tarfile). Zotero uses pyzotero, imported lazily so the
+arxiv path still runs without it.
 """
 
 import argparse
 import gzip
 import io
-import json
 import os
 import re
 import sys
 import tarfile
-import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -73,23 +72,21 @@ def fetch_arxiv(ident, key=None):
 
 # --- zotero -----------------------------------------------------------------
 
-def zotero_creds():
+def zotero_client():
+    try:
+        from pyzotero import zotero
+    except ImportError:
+        sys.exit("pip install pyzotero")
     key, uid = os.environ.get("ZOTERO_API_KEY"), os.environ.get("ZOTERO_USER_ID")
     if not key or not uid:
         sys.exit("set ZOTERO_API_KEY and ZOTERO_USER_ID (zotero.org/settings/keys)")
-    return key, uid
-
-
-def zotero_get(path, api_key, user_id, **params):
-    url = f"https://api.zotero.org/users/{user_id}/{path}"
-    if params:
-        url += "?" + urllib.parse.urlencode(params)
-    headers = {"Zotero-API-Version": "3", "Zotero-API-Key": api_key}
-    return get(url, headers)
+    return zotero.Zotero(uid, "user", key)
 
 
 def citekey(data):
-    """Better BibTeX key from the Extra field, else creator+year+first title word."""
+    """Better BibTeX key: the API's citationKey field, else Extra, else creator+year+title word."""
+    if data.get("citationKey"):
+        return data["citationKey"]
     m = re.search(r"^Citation Key:\s*(\S+)", data.get("extra", ""), re.M | re.I)
     if m:
         return m.group(1)
@@ -100,13 +97,13 @@ def citekey(data):
     return f"{last.lower()}{word.capitalize()}{year}"
 
 
-def fetch_zotero(tag=None, collection=None, limit=100):
-    api_key, user_id = zotero_creds()
-    params = {"format": "json", "limit": limit}
-    if tag:
-        params["tag"] = tag
-    path = f"collections/{collection}/items" if collection else "items"
-    items = json.loads(zotero_get(path, api_key, user_id, **params))
+def fetch_zotero(tag=None, collection=None):
+    zot = zotero_client()
+    kw = {"tag": tag} if tag else {}
+    # everything() pages through the whole result set; pyzotero also handles the
+    # API's rate-limit backoff headers for us.
+    query = zot.collection_items(collection, **kw) if collection else zot.items(**kw)
+    items = zot.everything(query)
 
     REFS.mkdir(parents=True, exist_ok=True)
     saved = []
@@ -117,12 +114,12 @@ def fetch_zotero(tag=None, collection=None, limit=100):
         out = REFS / f"@{citekey(data)}.pdf"
         if out.exists():
             continue
-        children = json.loads(zotero_get(f"items/{item['key']}/children", api_key, user_id, format="json"))
-        pdf = next((c for c in children if c["data"].get("contentType") == "application/pdf"), None)
+        pdf = next((c for c in zot.children(item["key"])
+                    if c["data"].get("contentType") == "application/pdf"), None)
         if not pdf:
             print(f"  no pdf attached: {data.get('title', '?')[:60]}")
             continue
-        out.write_bytes(zotero_get(f"items/{pdf['key']}/file", api_key, user_id))
+        out.write_bytes(zot.file(pdf["key"]))
         print(out)
         saved.append(out)
     print(f"{len(saved)} new pdf(s) in {REFS}")
@@ -144,8 +141,10 @@ def self_check():
         else:
             raise AssertionError(f"accepted {bad!r}")
 
-    assert citekey({"extra": "tex.ids: foo\nCitation Key: khanMeansRandomVariables2025"}) \
+    assert citekey({"citationKey": "khanMeansRandomVariables2025", "extra": "arXiv:2508.12030"}) \
         == "khanMeansRandomVariables2025"
+    assert citekey({"extra": "tex.ids: foo\nCitation Key: goorEquivariantFilterEqF2023"}) \
+        == "goorEquivariantFilterEqF2023"
     assert citekey({"creators": [{"lastName": "van Goor"}], "date": "2023-05-01",
                     "title": "Equivariant Filter (EqF)"}) == "van goorEquivariant2023"
     assert citekey({}) == "anonUntitlednd"
@@ -164,7 +163,6 @@ def main():
     z = sub.add_parser("zotero", help="download attached pdfs")
     z.add_argument("--tag")
     z.add_argument("--collection", help="collection key, e.g. ABCD1234")
-    z.add_argument("--limit", type=int, default=100)
 
     args = p.parse_args()
     if args.self_check:
@@ -172,7 +170,7 @@ def main():
     if args.cmd == "arxiv":
         fetch_arxiv(args.id, args.key)
     elif args.cmd == "zotero":
-        fetch_zotero(args.tag, args.collection, args.limit)
+        fetch_zotero(args.tag, args.collection)
     else:
         p.print_help()
 

@@ -24,13 +24,13 @@ tags: [topic, ...]
 **Goal:** one sentence, what you can do after this.
 
 ## Definitions
-Stated, minimal, in `ad-def` callouts. Notation fixed here and not changed later.
+Stated, minimal, in `:::info[Definition]` callouts. Notation fixed here and not changed later.
 
 ## Worked example
 One concrete instance — a matrix group, explicit entries. Show the computation, not the result.
 
 ## Theorems
-Statements in `ad-thm`. Proofs only when the proof is the lesson; otherwise cite [[@citekey]].
+Statements in `:::tip[Theorem]`. Proofs only when the proof is the lesson; otherwise cite [[@citekey]].
 
 ## Problems
 1. Recall/state — force recall of a definition.
@@ -43,3 +43,13 @@ At the bottom, after a `---`. Never inline with the problems.
 ```
 
 Problem 4 matters most: understanding shows up as knowing where the statement stops being true. Include it.
+
+## The standing question
+
+The repo exists to get **tight, coordinate-free** tube bounds (see [../CLAUDE.md](../CLAUDE.md) § The thesis). So for any quantity a lesson introduces, be explicit about which of the three it is:
+
+1. **Intrinsic** — chart-independent (curvature, injectivity radius, geodesic distance, sectional-curvature bounds).
+2. **Chart-dependent but harmless** — computed in a chart, provably equal across charts (Christoffel symbols assembling into $\nabla$; the [[mechanical-systems-on-lie-groups|exterior derivative]]).
+3. **Chart-dependent and load-bearing in a bound** — $\sup|\partial g_{ij}|$, $\sup|\partial^2 g_{ij}|$, and friends. **This is the conservatism the project is trying to remove.** Whenever one appears, say what the intrinsic replacement would be.
+
+Where a lesson touches a bound of type 3, the "break it" problem should be exactly that: exhibit two charts giving different constants for the same system.

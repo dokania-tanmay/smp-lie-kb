@@ -31,7 +31,7 @@ Each of these is an extra **choice**. The whole difficulty of this project is th
 
 ## Groups
 
-```ad-def
+:::info[Definition]
 Group is a set $G$ with an operation $(\cdot)$ that satisfies:
 1. Associativity: $(a\cdot b) \cdot c = a \cdot ( b \cdot c) \ \forall a,b,c \in G$
 2. Identity: $\exists e \in G : a \cdot e = e \cdot a = a \ \forall a \in G$
@@ -39,7 +39,7 @@ Group is a set $G$ with an operation $(\cdot)$ that satisfies:
 4. Closure: $a\cdot b \in G \ \forall a,b \in G$
 
 Uniqueness of inverse and identity follows from the axioms.
-```
+:::
 
 A **Lie group** is a group that is also a smooth manifold, with multiplication and inversion smooth.
 
@@ -47,14 +47,14 @@ Working assumption throughout: **matrix Lie groups first**, then homogeneous man
 
 ## Lie bracket
 
-```ad-def
+:::info[Definition]
 A **Lie Bracket** is defined for a smooth manifold:
 $$
 [X, Y] f = X(Y f) - Y (X f),\quad \forall\ f \in C^{\infty}(M)
 $$
 This requires seeing vector fields as derivations of functions.
 Additionally, this definition only requires the smoothness of the vector fields.
-```
+:::
 
 Key point: **no connection and no metric are involved.** Contrast with $\nabla_X Y$, which needs a connection choice. The two are linked by torsion, $T(X,Y) = \nabla_X Y - \nabla_Y X - [X,Y]$; torsion-free means $\nabla_X Y - \nabla_Y X = [X,Y]$.
 
@@ -62,11 +62,11 @@ On a Lie group, the bracket of left-invariant vector fields gives the Lie algebr
 
 ## Connections
 
-```ad-def
+:::info[Definition]
 A **connection** (affine/linear on $TM$) is an $\mathbb R$-bilinear map $\nabla: \mathfrak X (M) \times \mathfrak X (M) \to \mathfrak X(M)$, $(X,Y)\to \nabla_X Y$. It satisfies:
 - $C^{\infty}(M)$-linear in $X$ : $$\nabla_{fX} Y = f \nabla_X Y$$
 - Leibniz in $Y$ : $$\nabla_X (fY) = X(f) Y + f \nabla_X Y$$
-```
+:::
 
 The asymmetry between the slots is the whole content:
 
@@ -79,13 +79,13 @@ $$\text{metric} \implies \text{connection}, \qquad \text{connection} \not\implie
 
 ## Left-invariant metrics
 
-```ad-def
+:::info[Definition]
 A Riemannanian metric $\braket{}$ on a Lie Group $G$ is called **left-invariant** if
 $$
 \braket{u,v}_p = \braket{(dL_h)_p u, (dL_h)_p v},
 $$
 here, $(dL_h)_g : T_g G \to T_{hg}G$ is a linear isomorphism. In pullback notation, written as: $L_h^* \braket{} = \braket{}, \forall h \in G.$ The diffeomorphism $L_h$ is an isometry of $(G, \braket{})$ for every $h.$
-```
+:::
 
 Consequence: a left-invariant metric is determined entirely by an inner product on $\mathfrak g = T_e G$, transported by $dL_h$. So choosing a metric on $G$ is choosing a positive-definite operator on the Lie algebra.
 
@@ -102,9 +102,9 @@ Exponential or Log map stems from two sources:
 
 Why this matters here: the group-theoretic mean uses $\log(\mu^{-1}g)$ while the Fréchet/Karcher mean uses $\log_\mu(g)$ (see [[probability-on-manifolds]]); a distance built from one is not the distance built from the other; and any coordinate-invariance claim must say **which** log is meant.
 
-```ad-question
+:::warning[Open question]
 For $SE(3)$ with a left-invariant metric: how far apart are the two exponentials, quantitatively? Is there a bound in terms of the failure of $\mathrm{Ad}$-invariance?
-```
+:::
 
 ## Homogeneous manifolds *can* have different connections
 
@@ -120,10 +120,10 @@ Fiber, principal, vector, frame, tangent.
 
 Generalization of the *Cartesian Product*. Locally a product space, globally maybe not. It requires: total space $E$, base space $B$, fiber $F$, and bundle projection $\pi : E \to B$ (continuous, surjective). When $E = B \times F$ it is a **trivial bundle**.
 
-```ad-def
+:::info[Definition]
 To define a fiber bundle, one needs the total space $E$, base space $B$, fiber $F$ and a bundle projection map: $\pi : E \to B$.
 Every $x \in B$, there is an open "trivializing" neighbourhood $U\subset B$, such that there exists a homeomorphism $\phi : \pi^{-1} (U) \to U \times F$, in a way that $\pi$ agrees with the projection onto the first factor.
-```
+:::
 
 A **section** is a *smooth inverse of the projection*: $s : B \to E$ with $\pi \circ s = \mathrm{id}$. A vector field is a section of $TM$.
 
@@ -174,24 +174,24 @@ This is exactly the obstruction that makes curvature-correction terms appear in 
 
 ## Isometries
 
-```ad-def
+:::info[Definition]
 A map between two Riemannian manifolds $f:(M,g)\to (N,h)$ is called an **isometry** if it preserves the metric, i.e., the following holds
 $$
      \langle df_p v, df_p w \rangle_{h,{f(p)}} = \langle v, w\rangle_{g , p}
 $$
-```
+:::
 
 For a Riemannian metric one can define an exponential map that uses geodesics, which are defined using ODEs and covariant derivatives. Isometries map geodesics to geodesics, hence commute with $\exp$: $f(\exp_p v) = \exp_{f(p)} df_p v$. That identity is why left-invariance buys coordinate-invariant statements.
 
 ## Gauss lemma
 
-```ad-thm
+:::tip[Theorem]
 **Gauss Lemma**: The exponential map is a radial isometry, i.e.,
 $$
 \langle d (\exp_p)_v \tilde v, d (\exp_p)_v \tilde w \rangle_{g, \exp_p v} = \langle v, w \rangle_{g, p}
 $$
 It is important to note that the term $v$ is common. Additionally, $d(\exp_p)_v : T_v T_p M \to T_p M$. To make the distinction clear $\tilde v, \tilde w \in T_v T_p M$.
-```
+:::
 
 "Radial" is the whole point: one argument must be the radial direction $v$. $\exp_p$ is **not** an isometry in general — it preserves the radial component and orthogonality to it, and transverse distortion is what Jacobi fields and curvature measure.
 

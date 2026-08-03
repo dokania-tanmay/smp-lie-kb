@@ -7,13 +7,13 @@ My own notes. Companion files: [[riemannian-geometry]], [[mechanical-systems-on-
 
 ## Haar measure
 
-```ad-def
+:::info[Definition]
 **Left Haar Measure**: If $S\subset G$ and $h S := \{hg|g\in S\}$, then
 $$
 \int_S dg = \int_{hS} dg \ \forall h \in G,
 $$
 where $dg$ denotes integration w.r.t. the (left) Haar measure. If $G$ is compact, then the integral is finite and there exists a unique normalized Haar measure for which the integral $\int_G dg$ is equal to 1.
-```
+:::
 
 Similarly, one can define a right-invariant Haar measure. When the measures coincide, the group is called **unimodular**.
 
@@ -56,9 +56,10 @@ with $G' \subseteq G$ a neighbourhood of $\mu$ such that
 
 ($G$ might not be connected. $\log_\mu$ is the Riemannian log map at $\mu$.)
 
-```ad-question
+:::warning[Open question]
 Karcher means is a superset of Frechet mean? How are they related?
-```
+:::
+
 Working answer to check against the paper: Fréchet = global minimizer, Karcher = stationary point / local minimizer, so every Fréchet mean is a Karcher mean but not conversely.
 
 ### Group-theoretic means
@@ -88,6 +89,6 @@ To describe each there are PDEs, known as the forward and backward Kolmogorov eq
 
 The backward equation is the one built from the **generator**. That is the object the pathway needs: apply it to a distance function and show the result is a (super)martingale, then convert to a tube bound by a maximal inequality.
 
-```ad-question
+:::warning[Open question]
 Not yet worked through: Itô vs Stratonovich on a manifold, the generator as a second-order operator, and where the curvature terms enter. See the study plan in `content/`.
-```
+:::

@@ -54,9 +54,9 @@ A skew-symmetric matrix can be full rank in even-dimensional spaces. The even-di
 
 Non-degeneracy is what turns $dH$ into a vector field: $\iota_{X_H}\omega = dH$. That is Hamilton's equations, coordinate-free.
 
-```ad-question
+:::warning[Open question]
 Where do the Lie group and the symplectic structure interact? $T^*G \cong G\times\mathfrak g^*$ by left trivialization — does the canonical $\omega$ stay canonical in those coordinates, or pick up structure constants?
-```
+:::
 
 ## Tautological one-form
 
@@ -75,10 +75,10 @@ It is the only canonical 1-form on a cotangent bundle — no choices made — an
 
 ## Double tangent bundle
 
-```ad-question
+:::warning[Open question]
 How do vector fields on $TG$ translate to a second-order ODE on $TTG$?
-```
+:::
 
-```ad-question
+:::warning[Open question]
 How does the curvature of $TG$ in the Sasaki metric look?
-```
+:::
