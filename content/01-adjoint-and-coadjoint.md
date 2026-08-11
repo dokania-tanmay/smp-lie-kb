@@ -39,6 +39,14 @@ $$\langle\mathrm{Ad}^*_g\alpha,\eta\rangle=\langle\alpha,\mathrm{Ad}_g\eta\rangl
 Since $\eta$ ranges over all of $\mathfrak g$ and the pairing is non-degenerate, these define $\mathrm{Ad}^*_g\alpha$ and $\mathrm{ad}^*_\xi\mu$ uniquely. Note $\mathrm{Ad}^*$ is an *anti*-action: $\mathrm{Ad}^*_{gh}=\mathrm{Ad}^*_h\mathrm{Ad}^*_g$.
 :::
 
+:::info[Definition]
+The pairing is **non-degenerate**: the only $\mu$ with $\langle\mu,\xi\rangle=0$ for all $\xi\in\mathfrak g$ is $\mu=0$, and the only $\xi$ with $\langle\mu,\xi\rangle=0$ for all $\mu\in\mathfrak g^*$ is $\xi=0$. Equivalently $\mu\mapsto\langle\mu,\cdot\rangle$ is injective, and in finite dimensions an isomorphism.
+:::
+
+The two slots cost different amounts. The first is tautological — a functional vanishing on all of $\mathfrak g$ *is* the zero functional — and that is the half used above: two elements of $\mathfrak g^*$ agreeing on every $\eta$ are equal, so the defining identity pins down $\mathrm{ad}^*_\xi\mu$ rather than merely constraining it. (Existence is separate and free: $\eta\mapsto\langle\mu,\mathrm{ad}_\xi\eta\rangle$ is linear, hence already an element of $\mathfrak g^*$.) The second slot has content — $\mathfrak g^*$ separates points of $\mathfrak g$ — and is where finite-dimensionality is spent.
+
+Contrast an inner product $\langle\cdot,\cdot\rangle_{\mathbb I}$ on $\mathfrak g$, where non-degeneracy is an extra hypothesis, and exactly the one making $\mathbb I$ invertible. The canonical pairing gets it for free: $\mathfrak g^*$ was *defined* as the functionals on $\mathfrak g$. Note also that non-degenerate is weaker than definite, and weaker still than $\mathrm{Ad}$-invariant — the naive $SE(3)$ pairing of Problem 4 is non-degenerate and fails only the last.
+
 This is the convention of [[@leeGeometricInterpretationBrownian2025]]. Many mechanics texts define $\mathrm{ad}^*$ with a minus sign; if a source does, convert at the point of use and say so.
 
 ## Why $\mathrm{ad}^*$ is what appears in the dynamics
@@ -59,7 +67,7 @@ So $\mathrm{ad}^*_\xi\mu$ is not a force. It is the bookkeeping cost of writing 
 
 ## Worked example: $\mathfrak{so}(3)$
 
-The hat map $\hat{\cdot}:\mathbb R^3\to\mathfrak{so}(3)$ is defined by $\hat a\,b=a\times b$, with inverse $(\cdot)^\vee$; explicitly $\hat a=\begin{psmallmatrix}0&-a_3&a_2\\a_3&0&-a_1\\-a_2&a_1&0\end{psmallmatrix}$.
+The hat map $\hat{\cdot}:\mathbb R^3\to\mathfrak{so}(3)$ is defined by $\hat a\,b=a\times b$, with inverse $(\cdot)^\vee$; explicitly $\hat a=\begin{bmatrix}0&-a_3&a_2\\a_3&0&-a_1\\-a_2&a_1&0\end{bmatrix}$.
 
 **Step 1 — hat intertwines commutator and cross product.** For any $c\in\mathbb R^3$,
 $$[\hat a,\hat b]\,c=a\times(b\times c)-b\times(a\times c)=(a\times b)\times c=\widehat{a\times b}\,c,$$
@@ -80,7 +88,7 @@ Sanity check against the Proposition: $\langle\mathrm{Ad}^*_R\mu,\hat b\rangle=\
 
 1. **Recall.** Without looking above: state the defining identities for $\mathrm{ad}^*_\xi$ and $\mathrm{Ad}^*_g$, and say in one sentence which structures on $\mathfrak g$ each definition uses. Then say what changes if the source you are reading defines $\mathrm{ad}^*$ with a minus sign.
 
-2. **Compute.** On $SE(3)$, write $\xi=(\omega,v)$ for $\begin{psmallmatrix}\hat\omega&v\\0&0\end{psmallmatrix}\in\mathfrak{se}(3)$. Compute $\mathrm{ad}_{(\omega_1,v_1)}(\omega_2,v_2)$ from the matrix commutator, then compute $\mathrm{ad}^*_{(\omega,v)}(\Pi,P)$ using the pairing $\langle(\Pi,P),(\alpha,u)\rangle=\Pi^\top\alpha+P^\top u$.
+2. **Compute.** On $SE(3)$, write $\xi=(\omega,v)$ for $\begin{pmatrix}\hat\omega&v\\0&0\end{pmatrix}\in\mathfrak{se}(3)$. Compute $\mathrm{ad}_{(\omega_1,v_1)}(\omega_2,v_2)$ from the matrix commutator, then compute $\mathrm{ad}^*_{(\omega,v)}(\Pi,P)$ using the pairing $\langle(\Pi,P),(\alpha,u)\rangle=\Pi^\top\alpha+P^\top u$.
 
 3. **Prove.** Show $\langle\mathrm{ad}^*_\xi\mu,\xi\rangle=0$ for every $\xi\in\mathfrak g$, $\mu\in\mathfrak g^*$. Deduce that the unforced Euler–Poincaré flow $\dot\mu=\mathrm{ad}^*_\xi\mu$ with $\xi=\mathbb I^{-1}\mu$ conserves the energy $E=\tfrac12\langle\mu,\mathbb I^{-1}\mu\rangle$.
 
@@ -92,7 +100,7 @@ Sanity check against the Proposition: $\langle\mathrm{Ad}^*_R\mu,\hat b\rangle=\
 
 **1.** $\langle\mathrm{ad}^*_\xi\mu,\eta\rangle=\langle\mu,\mathrm{ad}_\xi\eta\rangle$ and $\langle\mathrm{Ad}^*_g\alpha,\eta\rangle=\langle\alpha,\mathrm{Ad}_g\eta\rangle$, for all $\eta\in\mathfrak g$. Both use only the vector-space structure of $\mathfrak g$, the bracket (resp. the group multiplication), and the canonical pairing — no inner product, no chart. A minus-sign convention replaces $\mathrm{ad}^*_\xi$ by $-\mathrm{ad}^*_\xi$, which flips the sign of the gyroscopic term: that source's Euler–Poincaré equation reads $\dot\mu=-\mathrm{ad}^*_\xi\mu+f$ and its $SO(3)$ specialization is $\mathrm{ad}^*_\Omega\Pi=\Omega\times\Pi$. Convert, do not adopt.
 
-**2.** $\begin{psmallmatrix}\hat\omega_1&v_1\\0&0\end{psmallmatrix}\begin{psmallmatrix}\hat\omega_2&v_2\\0&0\end{psmallmatrix}=\begin{psmallmatrix}\hat\omega_1\hat\omega_2&\hat\omega_1v_2\\0&0\end{psmallmatrix}$, so the commutator has blocks $[\hat\omega_1,\hat\omega_2]=\widehat{\omega_1\times\omega_2}$ and $\hat\omega_1v_2-\hat\omega_2v_1$:
+**2.** $\begin{pmatrix}\hat\omega_1&v_1\\0&0\end{pmatrix}\begin{pmatrix}\hat\omega_2&v_2\\0&0\end{pmatrix}=\begin{pmatrix}\hat\omega_1\hat\omega_2&\hat\omega_1v_2\\0&0\end{pmatrix}$, so the commutator has blocks $[\hat\omega_1,\hat\omega_2]=\widehat{\omega_1\times\omega_2}$ and $\hat\omega_1v_2-\hat\omega_2v_1$:
 $$\mathrm{ad}_{(\omega_1,v_1)}(\omega_2,v_2)=(\omega_1\times\omega_2,\;\omega_1\times v_2-\omega_2\times v_1).$$
 Then, with $\eta=(\alpha,u)$,
 $$\langle\mu,\mathrm{ad}_{(\omega,v)}\eta\rangle=\Pi\cdot(\omega\times\alpha)+P\cdot(\omega\times u)-P\cdot(\alpha\times v)

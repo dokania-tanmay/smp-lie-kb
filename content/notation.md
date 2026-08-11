@@ -65,11 +65,20 @@ $\mathrm{grad}\,\psi=\mathbb G^\sharp d\psi$; $\mathrm{Hess}\,\psi(u,w)=\langle 
 
 ## Mechanics
 
+:::warning[Three overloaded symbols — declare which you mean]
+**$\Delta$.** Laplace–Beltrami everywhere, and Brownian motion is the diffusion with generator $\tfrac12\Delta$ — that meaning is load-bearing in Phases 4–5 and wins by default. [[12-double-tangent-bundle]] alone uses $\Delta$ for the **Liouville (Euler, dilation) field** on $TM$, following the standard second-order-systems literature, and declares the override at the top of that file. Do not use $\Delta$ for the Liouville field anywhere else; if a later lesson needs it, write $\mathcal E$.
+
+
+**$\pi$.** Reserved below for spatial momentum, but $\pi:T^*Q\to Q$ (or $TM\to M$) is unavoidable as the bundle projection — it appears in $\theta_0$, in $\iota_{\mathrm{ver}(\beta)}\omega_0=-\pi^*\beta$, and throughout [[12-double-tangent-bundle]]. **Bundle projection wins in any lesson about bundles**; write spatial momentum as $\pi_{\mathrm{sp}}$ there, or avoid it. Declare the choice at first use.
+
+**$n$.** Means $\dim G$ (equivalently $\dim\mathfrak g$, $\dim Q$) — the *configuration* dimension. The state manifold $T^*Q$ has dimension $N=2n$. Bounds quoted from sources that write $n$ for "dimension of the manifold the vector field lives on" must be converted: [[@simpson-porcoContractionTheoryRiemannian2014]]'s divergence bound is $\mathrm{div}_GX\le-N\lambda$ with $N=2n$ on $T^*Q$. In [[28-intrinsic-amgf]] and the other AMGF lessons $n$ is the dimension the sphere average runs over, so it is $N$ there, not $\dim G$ — say so explicitly.
+:::
+
 | Symbol | Meaning |
 |---|---|
 | $\xi = g^{-1}\dot g\in\mathfrak g$ | **body** (left-trivialized) velocity |
 | $\mu = \mathbb I\xi\in\mathfrak g^*$ | body momentum |
-| $\pi = \mathrm{Ad}^*_{g^{-1}}\mu$ | spatial momentum |
+| $\pi = \mathrm{Ad}^*_{g^{-1}}\mu$ | spatial momentum (see the warning above) |
 | $\dot g = g\xi$ | reconstruction equation |
 | $\dot\mu = \mathrm{ad}^*_\xi\mu + f$ | forced Euler–Poincaré, $f\in\mathfrak g^*$ |
 

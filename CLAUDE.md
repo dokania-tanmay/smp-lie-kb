@@ -17,6 +17,18 @@ Why it is the right object to make intrinsic: $\Phi_{n,\lambda}$ is **rotation-i
 
 A coordinate-free treatment should replace those metric-derivative bounds with **curvature** — the intrinsic content of $\partial^2 g$ — and nothing else. When writing anything in `content/`, that is the standard to hold results to. The critique applies to **both** bound types: a manifold AMGF written naively in a chart would pick up the same kind of constants.
 
+:::warning[What the lessons actually found — read before repeating the claim above]
+[[29-tightness-comparison]] tested this and the headline form is **not supported**. Ranked by radius, the sources of conservatism are: worst-case norms $\approx80\times$; bound type $14$–$269\times$; looseness even in the best bound $\approx3.5\times$; **chart-dependence $\approx2.5\times$**; the $T^*Q\to Q$ projection $\approx1.13\times$. Chart-dependence is the *smallest*, and only the first is what going intrinsic removes — sources (b)–(e) survive a fully coordinate-free treatment untouched.
+
+**The defensible claim is different, and stronger in its own way: going intrinsic does not reduce the bias, it removes the variance.** Chart-dependence is the only source that is *unbounded and arbitrary* — [[24-dani-stochastic-contraction]] exhibits two charts, related by an isometry, where one certifies rate 1 and the other certifies nothing at all. $2.5\times$ is the typical case in a chart someone would actually pick; the worst case has no bound.
+
+Two corrections to the framing above:
+- The load-bearing chart artifact is **conditioning**, not derivative bounds. In Euler angles $\bar m_x$ stays $=1$ (and $\to0$ at gimbal lock); what diverges is $m=\inf\lambda_{\min}M\to0$, and the bound carries $\bar m_x/m$, $\bar m_{x^2}/m^2$ and an overall $1/m$.
+- $SE(3)$ with block-diagonal $\mathbb I$ is isometric to $SO(3)_{\mathbb J}\times\mathbb R^3$, so absence of a bi-invariant metric does **not** by itself give mixed-sign curvature — that needs rotation–translation coupling.
+
+**The blocking open problem**: every curvature number in the repo ($\mathrm{Sec}\equiv\tfrac14$, $\mathrm{inj}=\pi$) is for $SO(3)$, but the tube lives on $T^*SO(3)$ with the cross-term metric of [[16-cross-term-metrics]], whose curvature is uncomputed and which [[13-sasaki-metric]] shows is sign-indefinite and grows with $\|u\|^2$. **Neither track has a usable $\kappa$ or $\mathrm{inj}$ on the state manifold.** This blocks the chart route identically, so it favours neither side — but it means the headline comparison is not yet available on the object the project targets.
+:::
+
 ## Layout
 
 | Dir | Owner | Contents |
@@ -52,7 +64,7 @@ A coordinate-free treatment should replace those metric-derivative bounds with *
 - **Matrix Lie groups first.** Loosen to homogeneous manifolds, then Riemannian manifolds. Do not open with the general case.
 - **Coordinate-based treatment of intrinsic objects.** Write things in a chart, but only claim results that are chart-independent.
 - **Flag chart-dependent constants as conservatism.** Any bound whose constants are sup-norms of metric components or their derivatives ($\sup|\partial g_{ij}|$, $\sup|\partial^2 g_{ij}|$, Christoffel bounds) is a coordinate artifact. Say so, and name what the intrinsic replacement should be — usually a curvature bound, an injectivity radius, or a Hessian-comparison constant. Do not quietly reproduce a chart-dependent estimate as if it were the answer.
-- When a construction has more than one source (most importantly `exp`/`log` — see [[exp-and-log-maps]]), **state which one is meant**. Never silently pick.
+- When a construction has more than one source (most importantly `exp`/`log` — see [[riemannian-geometry]] § "Exp and log: two sources", resolved quantitatively in [[03-levi-civita-left-invariant]]), **state which one is meant**. Never silently pick.
 - State simplifying assumptions inline at the point of use, not in a global preamble.
 - Prefer $SO(3)$ / $SE(3)$ for worked examples: $SO(3)$ when bi-invariance is wanted, $SE(3)$ when its failure is the point.
 

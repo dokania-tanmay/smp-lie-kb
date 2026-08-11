@@ -9,9 +9,13 @@ Derived by diffing three things: the [[README|pathway]], my notes ([[riemannian-
 
 **The drafts are not a foundation.** They are unverified attempts; `contraction-mech-RG.tex` §"Audit of claims" lists what needs independent checking, and `stoch-contraction-RG.tex` closes with open conventions. Every phase below ends with a *verify* task against a specific numbered claim. That is the point of the exercise, not a formality.
 
-**Written so far.** [[notation]] (the notation contract — read it before any lesson) and lessons **01–08**, the entire shared trunk through the track A/B fork. Phases 2–5 are not yet written.
+**Written.** [[notation]] (the notation contract — read it before any lesson) and lessons **01–30**. All six phases complete; ~3,900 lines, 120 problems.
 
-Three results from that batch are worth knowing before continuing, because later lessons depend on them:
+:::warning[Track A and track B are not independent — a structural correction]
+The fork below presents A and B as parallel. [[25-intrinsic-mean-squared]] shows they are not: track A's confinement hypothesis (H4), keeping the process where $r$ is smooth, can only be closed by an exit-time probability $\mathbb P[\tau_\rho\le T]$ — a $\sup_t$ statement, i.e. **track B**. A depends on B to justify its own domain of validity. Order of attack still A-first (its template is in hand), but A cannot be *finished* alone.
+:::
+
+Three results from Phases 0–1 are worth knowing before continuing, because later lessons depend on them:
 
 - [[03-levi-civita-left-invariant]] resolves the exp/log open question quantitatively: $d(\exp_G(t\xi),\exp_e(t\xi))=\tfrac12t^2\|\widetilde{\mathrm{ad}}_\xi\xi\|_{\mathbb I}+O(t^3)$. A $t$-uniform bound still needs curvature.
 - [[06-curvature-left-invariant-metrics]] and [[07-jacobi-equation]] independently derive $R(X,Y)Z=-\tfrac14[[X,Y],Z]$ for bi-invariant metrics under this repo's sign convention — **minus**, where do Carmo-convention sources print $+$. The minus is what makes $\mathrm{Sec}=\tfrac14\|[X,Y]\|^2$ positive.
@@ -64,6 +68,24 @@ Nothing downstream parses without this. Highest priority.
 | 18 | Partial / hierarchical contraction; feedback interconnection vs cascade | The $SE(3)$ quadrotor decomposition, where full actuation fails |
 
 *Verify:* Theorem "Contraction certificate" — in particular the constant in $d>(\sigma-\mu)/(2\sqrt\mu)$, and the two consistency checks the draft itself offers ($V\equiv0$ ⟹ Jacobi equation; $\sigma=\mu$ ⟹ any $d>0$).
+
+:::tip[Verification outcome — done in [[17-curvature-corrected-stiffness]]]
+**The constant reproduces exactly** and both consistency checks pass. The draft's headline theorem survives independent reconstruction.
+
+Two corrections to the draft were found elsewhere in Phase 3, both in [[16-cross-term-metrics]]: its linear-shadow identity $\mathcal A^\top P+P\mathcal A=\mathrm{diag}(0,-2M^{-1}DM^{-1})$ holds **only in Hamiltonian variables** ($p=M\dot q$), not in $(q,\dot q)$; and the obstruction proposition is *stronger* than stated — the hypothesis $\pm\alpha_q\in\mathcal W$ is unnecessary whenever $\mathcal W$ contains the closed-loop equilibrium, since that is itself a zero covector. [[15-symplectic-not-contracting]] also replaced the draft's Darboux-dependent spectral argument with a direct one.
+:::
+
+:::warning[A second source of conservatism — not chart-dependence]
+[[17-curvature-corrected-stiffness]] finds the certified rate running ~2 orders of magnitude below the damping ($\lambda\approx0.030\,\mathrm{s^{-1}}$ at $d=2.5$). The cause is that $\kappa\le(\sigma-\mu)/2$ is a **uniform worst-case norm** which cannot exploit the anisotropy of $\mathrm{Jac}_v$ — an operator that annihilates $v$ outright. And $\sigma$ itself grows like $|\mathrm{Sec}|\sup\|v\|^2$, so required damping diverges from both ends as the region approaches the velocity cap.
+
+This conservatism is **not** the chart-dependence the thesis attacks, and a fully intrinsic treatment would leave it untouched. Lesson 29 must separate the two sources or it will credit the coordinate-free formulation with a gain it did not produce.
+:::
+
+:::warning[Open — an algebraic loop in the quadrotor interconnection]
+[[18-hierarchical-contraction]] found that the draft's $SE(3)$ decomposition does not satisfy the interconnection theorem's hypotheses. The theorem needs output maps $h_i:M_i\to\mathbb R^k$, but the attitude block consumes $\dot F_{\mathrm{des}}$, which contains $\dot e_v=(\Delta-k_ve_v-k_xe_x)/m$, which contains $\Delta$, hence $b_3$ — **the attitude state**. So the attitude block's input depends on its own state: an algebraic loop the draft does not notice. Separately, the source theorem is stated for time-invariant fields while both blocks here are tracking-error systems around time-varying references.
+
+Also noted: the theorem yields only a *block-diagonal* product metric — exactly the structure [[16-cross-term-metrics]] shows is too weak for a single mechanical system. The small-gain condition is presumably sufficient but not necessary, and an honest off-diagonal $G_{12}$ should relax it. No source builds one.
+:::
 
 ## Phase 4 — Stochastics on manifolds — *pathway step 3*
 
